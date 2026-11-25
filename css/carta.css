@@ -1,0 +1,653 @@
+/* =====================================================================
+   Carta pública · «Mar en verano»
+   Azul eléctrico claro, azul marino profundo, blanco espuma y sol.
+   (Los nombres de las variables vienen del diseño nocturno anterior:
+    --noche = fondo, --marfil = texto, --champan = acento.)
+   ===================================================================== */
+.noche {
+  --noche:      #2aaae8;   /* fondo: azul mar en verano */
+  --noche-2:    #48b9ee;   /* superficies */
+  --noche-3:    #6cc8f3;
+  --noche-4:    #95d9f8;
+  --marfil:     #04263d;   /* texto: azul marino profundo */
+  --marfil-2:   rgba(4, 38, 61, .80);
+  --marfil-3:   rgba(4, 38, 61, .62);
+  --champan:    #ffffff;   /* acento: blanco espuma */
+  --champan-2:  #ffffff;
+  --vidrio:     #04263d;
+  --linea:      rgba(4, 38, 61, .16);
+  --linea-2:    rgba(4, 38, 61, .28);
+  --sombra-mar: rgba(4, 38, 61, .35);
+
+  background: var(--noche);
+  color: var(--marfil);
+  overflow-x: hidden;
+}
+.noche ::selection { background: rgba(255,255,255,.55); color: var(--marfil); }
+.noche :focus-visible { outline-color: var(--marfil); }
+
+/* Grano de papel sobre toda la página */
+.noche::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  opacity: .06;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.contenedor { width: min(1220px, 100% - 48px); margin-inline: auto; }
+
+.noche .versalitas { color: var(--marfil); font-weight: 700; letter-spacing: .28em; font-size: 11px; }
+
+/* --- Cabecera --------------------------------------------------------- */
+.cabecera {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 20;
+  transition: background 400ms ease, border-color 400ms ease, backdrop-filter 400ms ease;
+  border-bottom: 1px solid transparent;
+}
+.cabecera.solida {
+  background: rgba(42, 170, 232, .82);
+  backdrop-filter: blur(16px) saturate(1.3);
+  -webkit-backdrop-filter: blur(16px) saturate(1.3);
+  border-bottom-color: var(--linea);
+}
+.cabecera__fila { display: flex; align-items: center; justify-content: space-between; height: 78px; }
+.noche .marca { color: var(--marfil); font-weight: 500; letter-spacing: .08em; }
+.noche .marca svg { color: var(--champan); }
+.cabecera__nav { display: flex; gap: 34px; }
+.cabecera__nav a {
+  position: relative;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--marfil-2);
+  transition: color var(--transicion);
+}
+.cabecera__nav a::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: -6px;
+  height: 1px;
+  background: var(--champan);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 300ms ease;
+}
+.cabecera__nav a:hover { color: var(--marfil); }
+.cabecera__nav a:hover::after { transform: scaleX(1); transform-origin: left; }
+
+/* =====================================================================
+   Portada: mar nocturno animado
+   ===================================================================== */
+.portada {
+  position: relative;
+  min-height: 100svh;
+  display: grid;
+  align-items: center;
+  overflow: hidden;
+  isolation: isolate;
+}
+.portada__escena { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; }
+.portada::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0;
+  height: 30%;
+  background: linear-gradient(to bottom, transparent, var(--noche));
+  z-index: -1;
+}
+
+.luna { filter: drop-shadow(0 0 50px rgba(255, 240, 170, .95)); }
+.estrellas { display: none; }
+.luna-halo { animation: respirar 7s ease-in-out infinite; transform-origin: 1180px 200px; }
+@keyframes respirar { 50% { opacity: .7; transform: scale(1.06); } }
+
+.estrellas circle { fill: #f1e9da; animation: titilar 4s ease-in-out infinite; }
+@keyframes titilar { 50% { opacity: .15; } }
+
+.reflejo rect { fill: #ffffff; animation: destello 3.2s ease-in-out infinite; }
+@keyframes destello { 0%, 100% { opacity: .05; } 50% { opacity: .75; } }
+
+.ola { fill: none; stroke-linecap: round; }
+.ola--1 { stroke: rgba(255, 255, 255, .55); stroke-width: 1.6; animation: oleaje 16s linear infinite; }
+.ola--2 { stroke: rgba(255, 255, 255, .38); stroke-width: 1.3; animation: oleaje 24s linear infinite reverse; }
+.ola--3 { stroke: rgba(255, 255, 255, .30); stroke-width: 1.1; animation: oleaje 30s linear infinite; }
+@keyframes oleaje { to { transform: translateX(-400px); } }
+
+.portada__contenido { padding: 120px 0 140px; text-align: center; }
+.portada__antetitulo { margin-bottom: 28px; animation: subir 1s .2s both; }
+.portada__titulo {
+  font-weight: 300;
+  font-size: clamp(54px, 10vw, 148px);
+  line-height: .95;
+  letter-spacing: -.02em;
+  color: var(--marfil);
+}
+.linea-titulo { display: block; }
+.linea-titulo--cursiva { font-style: italic; color: #0a5d9c; }
+.portada .versalitas { color: var(--marfil); }
+.letra {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(.45em) rotate(4deg);
+  filter: blur(6px);
+  animation: letra 900ms cubic-bezier(.2,.7,.2,1) forwards;
+}
+@keyframes letra { to { opacity: 1; transform: none; filter: none; } }
+
+.portada__entradilla {
+  max-width: 560px;
+  margin: 34px auto 0;
+  font-size: 17px;
+  line-height: 1.75;
+  color: var(--marfil-2);
+  animation: subir 1s 1.3s both;
+}
+@keyframes subir { from { opacity: 0; transform: translateY(16px); } }
+
+.boton-oro {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 44px;
+  padding: 16px 30px;
+  border: 1.5px solid var(--marfil);
+  border-radius: 999px;
+  color: var(--marfil);
+  background: rgba(255,255,255,.22);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+  text-decoration: none;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  transition: color 400ms ease, border-color 400ms ease;
+  animation: subir 1s 1.6s both;
+}
+.boton-oro::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--marfil);
+  transform: translateY(101%);
+  transition: transform 450ms cubic-bezier(.2,.7,.2,1);
+}
+.boton-oro:hover { color: #fff; border-color: var(--marfil); }
+.boton-oro:hover::before { transform: none; }
+.boton-oro svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+.portada__scroll {
+  position: absolute;
+  left: 50%;
+  bottom: 34px;
+  width: 1px;
+  height: 64px;
+  background: var(--linea);
+  overflow: hidden;
+}
+.portada__scroll span {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent, #fff);
+  animation: gota 2.4s cubic-bezier(.6,0,.4,1) infinite;
+}
+@keyframes gota { from { transform: translateY(-100%); } to { transform: translateY(100%); } }
+
+/* =====================================================================
+   Banda de ingredientes
+   ===================================================================== */
+.banda {
+  position: relative;
+  padding: 26px 0;
+  border-block: 1px solid var(--linea);
+  overflow: hidden;
+  mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+}
+.banda__pista {
+  display: flex;
+  width: max-content;
+  animation: desfile 70s linear infinite;
+}
+.banda:hover .banda__pista { animation-play-state: paused; }
+.banda__pista span {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 300;
+  font-size: 34px;
+  color: var(--marfil-3);
+  white-space: nowrap;
+  padding-right: 40px;
+}
+.banda__pista span::after { content: '✦'; font-style: normal; font-size: 13px; color: var(--champan); margin-left: 40px; vertical-align: middle; }
+.banda__pista span:nth-child(3n + 1) { color: var(--marfil); }
+@keyframes desfile { to { transform: translateX(-50%); } }
+
+/* =====================================================================
+   Barra de navegación de la carta
+   ===================================================================== */
+.carta { padding-bottom: 120px; }
+.barra-carta {
+  position: sticky;
+  top: 78px;
+  z-index: 10;
+  background: rgba(42, 170, 232, .86);
+  backdrop-filter: blur(16px) saturate(1.3);
+  -webkit-backdrop-filter: blur(16px) saturate(1.3);
+  border-bottom: 1px solid var(--linea);
+}
+.barra-carta__fila { display: flex; align-items: center; gap: 24px; min-height: 64px; }
+
+.capitulos {
+  display: flex;
+  gap: 2px;
+  flex: 1;
+  overflow-x: auto;
+  scrollbar-width: none;
+  mask-image: linear-gradient(90deg, #000 92%, transparent);
+}
+.capitulos::-webkit-scrollbar { display: none; }
+.capitulos a {
+  flex: none;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--marfil-3);
+  text-decoration: none;
+  transition: color var(--transicion), background var(--transicion);
+}
+.capitulos a i { font-family: var(--serif); font-size: 13px; color: var(--marfil); opacity: .55; }
+.capitulos a:hover { color: var(--marfil); }
+.capitulos a.activa { color: #fff; background: var(--marfil); }
+.capitulos a.activa i { color: #fff; opacity: .7; }
+
+.herramientas { display: flex; gap: 10px; flex: none; }
+.buscador { position: relative; display: flex; align-items: center; }
+.buscador svg {
+  position: absolute; left: 14px;
+  width: 16px; height: 16px;
+  fill: none; stroke: var(--marfil-3); stroke-width: 1.8; stroke-linecap: round;
+  pointer-events: none;
+}
+.buscador input {
+  width: 250px;
+  height: 40px;
+  padding: 0 16px 0 40px;
+  border: 1px solid var(--linea-2);
+  border-radius: 999px;
+  background: rgba(255,255,255,.28);
+  color: var(--marfil);
+  transition: border-color var(--transicion), background var(--transicion);
+}
+.buscador input::placeholder { color: var(--marfil-3); }
+.buscador input:focus { outline: none; border-color: var(--marfil); background: rgba(255,255,255,.5); }
+
+.filtro-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 16px;
+  border: 1px solid var(--linea-2);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--marfil);
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color var(--transicion), background var(--transicion);
+}
+.filtro-btn:hover, .filtro-btn[aria-expanded="true"] { border-color: var(--marfil); background: rgba(255,255,255,.25); }
+.filtro-btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
+.filtro-btn__n {
+  display: inline-grid; place-items: center;
+  min-width: 20px; height: 20px; padding: 0 6px;
+  border-radius: 999px;
+  background: var(--champan); color: var(--noche);
+  font-size: 11px; font-weight: 800;
+}
+
+.panel-alergenos { border-top: 1px solid var(--linea); padding: 20px 0 24px; animation: subir 300ms ease both; }
+.panel-alergenos__ayuda { font-size: 13.5px; color: var(--marfil-2); margin-bottom: 14px; }
+.panel-alergenos__lista { display: flex; flex-wrap: wrap; gap: 8px; }
+.alergeno-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px 7px 9px;
+  border: 1px solid var(--linea-2);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--marfil);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transicion);
+}
+.alergeno-toggle:hover { border-color: var(--marfil-2); }
+.alergeno-toggle[aria-pressed="true"] {
+  border-color: var(--champan);
+  background: var(--champan);
+  color: var(--noche);
+  text-decoration: line-through;
+}
+
+/* Los iconos de alérgenos son trazos oscuros: sobre la noche se invierten */
+.noche .icono-alergeno { width: 16px; height: 16px; flex: none; opacity: .8; }
+.noche .alergeno-toggle .icono-alergeno { width: 20px; height: 20px; }
+.noche .alergeno-toggle[aria-pressed="true"] .icono-alergeno { opacity: .9; }
+
+.aviso-filtro {
+  margin-top: 28px;
+  padding: 14px 20px;
+  border: 1px solid rgba(255,255,255,.75);
+  background: rgba(255,255,255,.18);
+  border-radius: 12px;
+  color: var(--marfil);
+  font-size: 14px;
+}
+
+/* =====================================================================
+   Capítulos de la carta
+   ===================================================================== */
+.capitulo {
+  position: relative;
+  padding-top: 110px;
+  scroll-margin-top: 140px;
+}
+.capitulo__cabecera {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: end;
+  gap: 8px 36px;
+  margin-bottom: 56px;
+  min-height: 190px;
+}
+.capitulo__numero {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(110px, 16vw, 210px);
+  line-height: .78;
+  color: transparent;
+  -webkit-text-stroke: 1.5px rgba(255,255,255,.85);
+  user-select: none;
+}
+.capitulo__titulo { padding-bottom: 14px; }
+.capitulo__titulo .versalitas { display: block; margin-bottom: 10px; }
+.capitulo__titulo h3 {
+  font-size: clamp(44px, 6vw, 76px);
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1;
+}
+.capitulo__titulo h3::after {
+  content: '';
+  display: block;
+  width: 64px;
+  height: 1px;
+  margin-top: 22px;
+  background: var(--champan);
+}
+/* Plato gigante girando detrás del título */
+.capitulo__fondo {
+  position: absolute;
+  right: -140px;
+  top: -40px;
+  width: 440px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  overflow: hidden;
+  opacity: .28;
+  pointer-events: none;
+  z-index: -1;
+  mask-image: radial-gradient(circle, #000 55%, transparent 71%);
+  transform: rotate(calc(var(--giro, 0deg) * -.6));
+}
+.capitulo__fondo img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.18); }
+
+/* --- Platos (filas editoriales) ---------------------------------------- */
+.platos {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 72px;
+  row-gap: 12px;
+}
+.plato {
+  display: grid;
+  grid-template-columns: 112px 1fr;
+  align-items: center;
+  gap: 26px;
+  padding: 18px 14px 18px 0;
+  border: 0;
+  border-bottom: 1px solid var(--linea);
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(26px);
+  transition: opacity 800ms cubic-bezier(.2,.7,.2,1), transform 800ms cubic-bezier(.2,.7,.2,1);
+  transition-delay: var(--retraso, 0ms);
+}
+.plato.visible { opacity: 1; transform: none; }
+
+.plato__disco {
+  position: relative;
+  width: 112px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  overflow: hidden;
+  background: radial-gradient(circle at 35% 30%, var(--noche-4), var(--noche-2));
+  box-shadow: 0 18px 30px -14px var(--sombra-mar), 0 0 0 3px rgba(255,255,255,.6);
+  transform: rotate(calc(var(--giro, 0deg) * var(--sentido, 1)));
+  transition: box-shadow 400ms ease;
+}
+.plato__disco img {
+  position: relative;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transform: scale(1.16);
+  transition: transform 700ms cubic-bezier(.2,.7,.2,1);
+}
+.plato__disco::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.3), inset 0 -10px 18px rgba(4,38,61,.12);
+}
+.plato__inicial {
+  position: absolute; inset: 0;
+  display: grid; place-items: center;
+  font-family: var(--serif); font-style: italic; font-size: 34px;
+  color: var(--champan);
+}
+.plato:hover .plato__disco, .plato:focus-visible .plato__disco { box-shadow: 0 22px 40px -14px var(--sombra-mar), 0 0 0 4px #fff; }
+.plato:hover .plato__disco img { transform: scale(1.26) rotate(25deg); }
+
+.plato__texto { min-width: 0; }
+.plato__fila { display: flex; align-items: baseline; gap: 12px; }
+.plato__nombre {
+  font-family: var(--serif);
+  font-size: 25px;
+  font-weight: 500;
+  line-height: 1.15;
+  transition: color var(--transicion);
+}
+.plato:hover .plato__nombre { text-decoration: underline; text-decoration-color: #fff; text-decoration-thickness: 2px; text-underline-offset: 5px; }
+.plato__puntos { flex: 1; min-width: 18px; border-bottom: 1px dotted var(--linea-2); transform: translateY(-6px); }
+.plato__precio { font-family: var(--serif); font-size: 23px; font-weight: 700; color: var(--marfil); white-space: nowrap; }
+.plato__ingredientes {
+  margin-top: 6px;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 16.5px;
+  line-height: 1.45;
+  color: var(--marfil-3);
+}
+.plato__alergenos { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.plato__alergenos .icono-alergeno { width: 17px; height: 17px; opacity: .55; }
+
+/* Bebidas, vinos y cervezas: carta de vinos compacta */
+.capitulo--lista .platos { grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: 48px; row-gap: 4px; }
+.capitulo--lista .plato { grid-template-columns: 58px 1fr; gap: 18px; padding: 14px 0; }
+.capitulo--lista .plato__disco { width: 58px; }
+.capitulo--lista .plato__nombre { font-size: 20px; }
+.capitulo--lista .plato__precio { font-size: 19px; }
+.capitulo--lista .plato__ingredientes { display: none; }
+.capitulo--lista .plato__alergenos { margin-top: 4px; }
+.capitulo--lista .plato__alergenos .icono-alergeno { width: 14px; height: 14px; }
+
+.vacio {
+  padding: 120px 0;
+  text-align: center;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 30px;
+  font-weight: 300;
+  color: var(--marfil-3);
+}
+.noche .cargando { color: var(--champan); }
+
+/* =====================================================================
+   Ficha del plato
+   ===================================================================== */
+.ficha {
+  width: min(980px, calc(100% - 32px));
+  max-height: calc(100dvh - 40px);
+  padding: 0;
+  border: 1px solid var(--linea-2);
+  border-radius: 28px;
+  background: var(--noche-2);
+  color: var(--marfil);
+  overflow: auto;
+  box-shadow: 0 40px 120px -30px var(--sombra-mar);
+}
+.ficha[open] { animation: ficha-entra 520ms cubic-bezier(.2,.7,.2,1); }
+.ficha::backdrop { background: rgba(4, 38, 61, .45); backdrop-filter: blur(6px); }
+@keyframes ficha-entra { from { opacity: 0; transform: translateY(30px) scale(.97); } }
+.ficha__cuerpo {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: center;
+  padding: 48px;
+  background: radial-gradient(70% 90% at 0% 50%, rgba(255,255,255,.35), transparent 65%);
+}
+.ficha__cerrar {
+  position: absolute;
+  top: 18px; right: 18px;
+  width: 42px; height: 42px;
+  border: 1px solid var(--linea-2);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--marfil);
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color var(--transicion), transform var(--transicion);
+}
+.ficha__cerrar:hover { border-color: var(--champan); transform: rotate(90deg); }
+.ficha__plato {
+  aspect-ratio: 1;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--noche-3);
+  box-shadow: 0 40px 70px -24px var(--sombra-mar), 0 0 0 6px #fff, 0 0 0 18px rgba(255,255,255,.25);
+  animation: girar-lento 60s linear infinite;
+}
+.ficha__plato img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.14); }
+@keyframes girar-lento { to { transform: rotate(360deg); } }
+.ficha__seccion { margin-bottom: 12px; }
+.ficha__nombre { font-size: clamp(36px, 4.5vw, 56px); font-weight: 400; font-style: italic; line-height: 1.02; }
+.ficha__precio { margin-top: 14px; font-family: var(--serif); font-size: 34px; font-weight: 700; color: var(--marfil); }
+.ficha__subtitulo {
+  margin: 30px 0 12px;
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .26em;
+  text-transform: uppercase;
+  color: var(--marfil-3);
+}
+.ficha__ingredientes { display: flex; flex-wrap: wrap; gap: 6px 0; list-style: none; margin: 0; padding: 0; }
+.ficha__ingredientes li { font-family: var(--serif); font-size: 19px; color: var(--marfil-2); }
+.ficha__ingredientes li:not(:last-child)::after { content: "·"; margin: 0 10px; color: #fff; font-weight: 700; }
+.ficha__alergenos { display: flex; flex-wrap: wrap; gap: 8px; }
+.ficha__alergenos span {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 6px 12px 6px 8px;
+  border: 1px solid var(--linea-2);
+  border-radius: 999px;
+  font-size: 13px;
+}
+.ficha__alergenos .icono-alergeno { width: 18px; height: 18px; }
+.ficha__sin { font-family: var(--serif); font-style: italic; font-size: 18px; color: var(--vidrio); }
+
+/* =====================================================================
+   Información de alérgenos y pie
+   ===================================================================== */
+.info-alergenos {
+  padding: 110px 0;
+  border-top: 1px solid var(--linea);
+  background: radial-gradient(60% 120% at 100% 0%, rgba(255,255,255,.30), transparent 60%), var(--noche-2);
+}
+.info-alergenos__rejilla { display: grid; grid-template-columns: 1fr 1.5fr; gap: 64px; align-items: start; }
+.info-alergenos h2 { margin-top: 14px; font-size: clamp(48px, 6vw, 72px); font-weight: 300; font-style: italic; }
+.info-alergenos p:not(.versalitas) { font-size: 16.5px; line-height: 1.8; color: var(--marfil-2); }
+.info-alergenos__iconos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 14px 20px;
+  margin-top: 36px;
+}
+.info-alergenos__iconos span { display: flex; align-items: center; gap: 10px; font-size: 13.5px; color: var(--marfil-2); }
+.info-alergenos__iconos .icono-alergeno { width: 24px; height: 24px; }
+
+.pie { padding: 44px 0; border-top: 1px solid var(--linea); font-size: 13px; color: var(--marfil-3); }
+.pie__fila { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+
+/* =====================================================================
+   Responsive y movimiento reducido
+   ===================================================================== */
+@media (max-width: 980px) {
+  .platos { grid-template-columns: 1fr; }
+  .capitulo--lista .platos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ficha__cuerpo { grid-template-columns: 1fr; padding: 36px 24px; gap: 28px; }
+  .ficha__plato { width: min(320px, 80%); margin-inline: auto; }
+  .info-alergenos__rejilla { grid-template-columns: 1fr; gap: 24px; }
+}
+@media (max-width: 720px) {
+  .cabecera__nav { gap: 18px; }
+  .barra-carta__fila { flex-wrap: wrap; gap: 8px; padding: 10px 0; }
+  .capitulos { order: 2; flex-basis: 100%; }
+  .herramientas { flex: 1; }
+  .buscador { flex: 1; }
+  .buscador input { width: 100%; }
+  .capitulo__cabecera { grid-template-columns: 1fr; min-height: 0; }
+  .capitulo__fondo { width: 300px; right: -120px; }
+  .plato { grid-template-columns: 84px 1fr; gap: 18px; }
+  .plato__disco { width: 84px; }
+  .plato__nombre { font-size: 22px; }
+  .capitulo--lista .platos { grid-template-columns: 1fr; }
+  .banda__pista span { font-size: 26px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .plato { opacity: 1; transform: none; }
+  .letra { opacity: 1; transform: none; filter: none; }
+}

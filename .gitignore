@@ -1,0 +1,47 @@
+# =====================================================================
+#  Datos sensibles: NUNCA subir al repositorio
+# =====================================================================
+
+# Credenciales de la base de datos (usa api/config.example.php como plantilla)
+api/config.php
+
+# Variables de entorno y secretos
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+secrets/
+credenciales*
+
+# Volcados y copias de la base de datos con datos reales
+# (los archivos de datos/ son el esquema y datos de prueba, sí se suben)
+backups/
+*.sql.gz
+*.sql.zip
+*.bak
+datos/privado/
+datos/*_real*.sql
+datos/*_backup*.sql
+
+# Sesiones, logs y temporales de PHP
+sesiones/
+tmp/
+*.log
+error_log
+
+# Imágenes subidas por usuarios (si algún día se añaden)
+uploads/
+
+# Configuración local del editor / herramientas
+.vscode/
+.idea/
+.claude/settings.local.json
+*.swp
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Paquetes de imágenes ya descomprimidos en img/
+*.zip

@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#2aaae8">
+  <title>Olea · Cocina mediterránea</title>
+  <meta name="description" content="Carta de Olea, cocina mediterránea: entrantes, arroces, pescados, postres y vinos.">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/carta.css">
+</head>
+<body class="noche">
+
+  <header class="cabecera" id="cabecera">
+    <div class="contenedor cabecera__fila">
+      <a class="marca" href="./" id="marca">Olea</a>
+      <nav class="cabecera__nav" aria-label="Principal">
+        <a href="#carta">Carta</a>
+        <a href="#alergenos-info">Alérgenos</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- ======================= PORTADA ======================= -->
+    <section class="portada" aria-labelledby="titulo-portada">
+      <svg class="portada__escena" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+        <defs>
+          <radialGradient id="g-cielo" cx="50%" cy="32%" r="75%">
+            <stop offset="0" stop-color="#d9f4ff"/>
+            <stop offset=".55" stop-color="#8fd8fa"/>
+            <stop offset="1" stop-color="#5cc3f2"/>
+          </radialGradient>
+          <radialGradient id="g-halo" cx="50%" cy="50%" r="50%">
+            <stop offset="0" stop-color="#fff6c4" stop-opacity=".9"/>
+            <stop offset=".35" stop-color="#fff1a8" stop-opacity=".35"/>
+            <stop offset="1" stop-color="#fff1a8" stop-opacity="0"/>
+          </radialGradient>
+          <linearGradient id="g-mar" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#0e8fd6"/>
+            <stop offset="1" stop-color="#2aaae8"/>
+          </linearGradient>
+        </defs>
+        <rect width="1600" height="900" fill="url(#g-cielo)"/>
+        <g class="estrellas"></g>
+        <circle cx="1180" cy="200" r="240" fill="url(#g-halo)" class="luna-halo"/>
+        <circle cx="1180" cy="200" r="52" fill="#fff8d6" class="luna"/>
+        
+        <rect y="560" width="1600" height="340" fill="url(#g-mar)"/>
+        <g class="reflejo"></g>
+        <g class="olas">
+          <path class="ola ola--1" d=""/>
+          <path class="ola ola--2" d=""/>
+          <path class="ola ola--3" d=""/>
+        </g>
+      </svg>
+
+      <div class="portada__contenido contenedor">
+        <p class="versalitas portada__antetitulo">Cocina mediterránea · Junto al mar</p>
+        <h1 class="portada__titulo" id="titulo-portada" aria-label="Del mar, la huerta y el olivo">
+          <span class="linea-titulo" data-texto="Del mar, la huerta"></span>
+          <span class="linea-titulo linea-titulo--cursiva" data-texto="y el olivo"></span>
+        </h1>
+        <p class="portada__entradilla">
+          Arroces a la leña, pescado de lonja y verduras de temporada.<br>
+          Una carta para compartir sin prisa, con el sol de verano sobre el mar.
+        </p>
+        <a class="boton-oro" href="#carta">
+          Descubrir la carta
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg>
+        </a>
+      </div>
+      <div class="portada__scroll" aria-hidden="true"><span></span></div>
+    </section>
+
+    <!-- ======================= BANDA ======================= -->
+    <div class="banda" aria-hidden="true">
+      <div class="banda__pista" id="banda"></div>
+    </div>
+
+    <!-- ======================= CARTA ======================= -->
+    <section class="carta" id="carta" aria-labelledby="carta-titulo">
+      <div class="barra-carta" id="barra-carta">
+        <div class="contenedor barra-carta__fila">
+          <nav class="capitulos" id="capitulos" aria-label="Secciones de la carta"></nav>
+          <div class="herramientas">
+            <label class="buscador">
+              <span class="sr">Buscar plato o ingrediente</span>
+              <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="6"/><path d="m14 14 4 4"/></svg>
+              <input type="search" id="buscar" placeholder="Buscar plato o ingrediente" autocomplete="off">
+            </label>
+            <button class="filtro-btn" id="btn-filtro" type="button" aria-expanded="false" aria-controls="panel-alergenos">
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5h14M6 10h8M8.5 15h3"/></svg>
+              Alérgenos <span class="filtro-btn__n oculto" id="filtro-n"></span>
+            </button>
+          </div>
+        </div>
+        <div class="panel-alergenos oculto" id="panel-alergenos">
+          <div class="contenedor">
+            <p class="panel-alergenos__ayuda">Marca lo que no puedes tomar y retiraremos de la carta los platos que lo contienen.</p>
+            <div class="panel-alergenos__lista" id="lista-alergenos"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="contenedor">
+        <h2 class="sr" id="carta-titulo">Carta</h2>
+        <p class="aviso-filtro oculto" id="aviso-filtro" role="status"></p>
+        <div id="contenido-carta"><div class="cargando" aria-label="Cargando carta"></div></div>
+      </div>
+    </section>
+
+    <!-- ======================= ALÉRGENOS ======================= -->
+    <section class="info-alergenos" id="alergenos-info">
+      <div class="contenedor info-alergenos__rejilla">
+        <div>
+          <p class="versalitas">Información al cliente</p>
+          <h2>Alérgenos</h2>
+        </div>
+        <div>
+          <p>
+            Cada plato indica los alérgenos de declaración obligatoria (Reglamento UE 1169/2011) presentes
+            en sus ingredientes. Nuestra cocina trabaja con todos ellos, por lo que no podemos descartar
+            trazas. Si tienes una alergia o intolerancia, coméntalo al personal de sala antes de pedir.
+          </p>
+          <div class="info-alergenos__iconos" id="leyenda-alergenos"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="pie">
+    <div class="contenedor pie__fila">
+      <span class="marca" id="marca-pie">Olea</span>
+      <p>Precios en euros, IVA incluido.</p>
+    </div>
+  </footer>
+
+  <!-- Ficha del plato -->
+  <dialog class="ficha" id="ficha" aria-labelledby="ficha-nombre">
+    <div class="ficha__cuerpo">
+      <button class="ficha__cerrar" id="ficha-cerrar" type="button" aria-label="Cerrar">×</button>
+      <div class="ficha__plato"><img id="ficha-img" alt=""></div>
+      <div class="ficha__texto">
+        <p class="versalitas ficha__seccion" id="ficha-seccion"></p>
+        <h2 class="ficha__nombre" id="ficha-nombre"></h2>
+        <p class="ficha__precio num" id="ficha-precio"></p>
+        <h3 class="ficha__subtitulo">Ingredientes</h3>
+        <ul class="ficha__ingredientes" id="ficha-ingredientes"></ul>
+        <h3 class="ficha__subtitulo">Alérgenos</h3>
+        <div class="ficha__alergenos" id="ficha-alergenos"></div>
+      </div>
+    </div>
+  </dialog>
+
+  <script src="js/api.js"></script>
+  <script src="js/carta.js"></script>
+</body>
+</html>

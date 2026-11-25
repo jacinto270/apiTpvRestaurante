@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>API · Olea TPV</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/docs.css">
+</head>
+<body>
+  <header class="cabecera">
+    <div class="contenedor cabecera__fila">
+      <a class="marca" href="./" id="marca">Olea</a>
+      <nav class="cabecera__nav" aria-label="Principal">
+        <a href="./">Carta</a>
+        <a href="#autenticacion">Autenticación</a>
+        <a href="#errores">Errores</a>
+        <a class="btn btn--fantasma" href="tpv.html">Acceso TPV</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="contenedor docs">
+    <aside class="docs__indice" id="indice" aria-label="Índice"></aside>
+
+    <div class="docs__contenido">
+      <section class="docs__intro">
+        <p class="versalitas">Referencia</p>
+        <h1>API REST del TPV</h1>
+        <p>
+          JSON sobre HTTP, conectada a la base de datos <code>apitpvrestaurante</code> de MySQL/MariaDB.
+          Todas las rutas cuelgan de la URL base:
+        </p>
+        <pre class="base"><code id="url-base"></code></pre>
+        <p>
+          Si <code>mod_rewrite</code> está activo también funciona sin <code>index.php</code>
+          (<code>/api/platos/3</code>). Los cuerpos se envían como <code>application/json</code>.
+        </p>
+      </section>
+
+      <section id="autenticacion" class="docs__bloque">
+        <h2>Autenticación</h2>
+        <p>
+          La API usa una sesión de PHP (cookie <code>tpv_sesion</code>). Inicia sesión con
+          <code>POST /auth/login</code> y envía la cookie en las siguientes peticiones. Las contraseñas
+          se guardan cifradas con bcrypt.
+        </p>
+        <dl class="niveles">
+          <div><dt><span class="nivel nivel--publico">Público</span></dt><dd>No necesita sesión.</dd></div>
+          <div><dt><span class="nivel nivel--sesion">Sesión</span></dt><dd>Cualquier empleado con sesión iniciada.</dd></div>
+          <div><dt><span class="nivel nivel--carta">Carta</span></dt><dd>admin, gerente o jefe de cocina.</dd></div>
+          <div><dt><span class="nivel nivel--sala">Sala</span></dt><dd>admin, gerente o jefe de sala.</dd></div>
+          <div><dt><span class="nivel nivel--direccion">Dirección</span></dt><dd>admin o gerente.</dd></div>
+        </dl>
+      </section>
+
+      <div id="grupos"></div>
+
+      <section id="errores" class="docs__bloque">
+        <h2>Errores</h2>
+        <p>Los errores devuelven un código HTTP y un cuerpo <code>{"error": "mensaje"}</code>.</p>
+        <table class="tabla-docs">
+          <tbody>
+            <tr><td><code>400</code></td><td>JSON o identificador mal formado.</td></tr>
+            <tr><td><code>401</code></td><td>Falta iniciar sesión o la contraseña es incorrecta.</td></tr>
+            <tr><td><code>403</code></td><td>El rango del empleado no permite la acción.</td></tr>
+            <tr><td><code>404</code></td><td>El recurso o la ruta no existen.</td></tr>
+            <tr><td><code>409</code></td><td>Conflicto: nombre duplicado, registro en uso, mesa ocupada o cambio de estado no permitido.</td></tr>
+            <tr><td><code>422</code></td><td>Faltan campos o tienen un valor no válido.</td></tr>
+          </tbody>
+        </table>
+      </section>
+    </div>
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/docs.js"></script>
+</body>
+</html>

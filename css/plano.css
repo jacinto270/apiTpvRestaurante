@@ -1,0 +1,225 @@
+/* =====================================================================
+   Plano del salón (SVG). Paleta de día inspirada en la costa:
+   cal blanca, azul egeo, baldosa hidráulica, barro y buganvilla.
+   ===================================================================== */
+
+/* --- Paleta del plano (día de verano, mediterráneo) ------------------ */
+.tpv {
+  --pl-exterior: #e8dfcf;
+  --pl-suelo-1: #f8f2e7;  --pl-suelo-2: #f1e0cb;  --pl-suelo-3: #b9d0dc;  --pl-junta: rgba(120,95,70,.12);
+  --pl-madera-1: #e5cca6; --pl-madera-2: #ddc298; --pl-junta-madera: rgba(110,80,50,.18);
+  --pl-tarima-1: #e9d4ac; --pl-tarima-2: #e2caa0;
+  --pl-arena: #f3e4c4;    --pl-arena-2: #dcc69f;
+  --pl-mar-1: #7ec3de;    --pl-mar-2: #2d7fad;    --pl-espuma: rgba(255,255,255,.9);
+  --pl-pared: #ffffff;    --pl-pared-borde: #d6cbb8;
+  --pl-ventana: #2f6f95;  --pl-marco: #ffffff;
+  --pl-puerta: #9a8f80;   --pl-rotulo: #8d8274;
+  --pl-mueble: #a57a52;   --pl-mueble-2: #c79c6e;
+  --pl-maceta: #c4673f;   --pl-tierra: #7a5a40;
+  --pl-hoja: #7d8f5a;     --pl-hoja-2: #9aab72;   --pl-hoja-3: #bac792; --pl-tronco: #6b5138;
+  --pl-lavanda: #9a85c9;  --pl-geranio: #e0574a;  --pl-limon: #f2cf3a;
+  --pl-ceramica: #fdfbf6; --pl-azul: #2f6f95;     --pl-hueco: #3a3027;
+  --pl-barro: #cf8a5c;    --pl-barro-2: #b5714a;
+  --pl-palma: #6f9a4e;    --pl-palma-2: #88b160;
+  --pl-buganvilla: #d6337a; --pl-buganvilla-2: #ec74a8;
+  --pl-lona: #ffffff;     --pl-lona-2: #3584b8;
+  --pl-botella-1: #4f7a4a; --pl-botella-2: #c08a3a; --pl-botella-3: #c7d6d8; --pl-botella-4: #7a2e3a;
+  --pl-taburete-pata: #6b4e35; --pl-taburete: #c76b4a;
+  --pl-marmol: #fbf9f4;   --pl-marmol-borde: #ddd5c6;
+  --pl-metal: #b9bec0;    --pl-caja: #3b4446;     --pl-pantalla: #8fd0b0;
+  --pl-barrica: #a3734a;  --pl-barrica-2: #82593a; --pl-aro: #55524d;
+  --pl-barca: #ffffff;    --pl-mastil: #6b5138;
+  --pl-cal: #fdfcf8;      --pl-zocalo: #2f6f95;   --pl-puerta-azul: #2f6f95;
+  --pl-barandilla: #a07a55;
+  --pl-salvavidas: #ffffff; --pl-salvavidas-2: #d9483b;
+  --pl-silla: #d8b487;    --pl-silla-respaldo: #a8824f;
+  --pl-raya-1: #ffffff;   --pl-raya-2: #3584b8;   --pl-silla-borde: rgba(40,70,95,.35); --pl-silla-terraza-respaldo: #a07a55;
+  --pl-borde-mesa: rgba(80,60,40,.10);
+  --pl-mantel: #ffffff;   --pl-mantel-linea: rgba(29,42,46,.14);
+  --pl-teca: #cfa571;     --pl-tablas: rgba(110,70,35,.28);
+  --pl-redonda: #fbf9f4;
+  --pl-texto: #1d2a2e;
+  --pl-ocupada: #c4573a;  --pl-ocupada-suave: #f9e0d5;
+  --pl-cuenta: #b38428;   --pl-cuenta-suave: #f7eacb;
+  --pl-seleccion: #2f6f95;
+  --pl-sombrilla-opacidad: .5;
+}
+
+/* --- Correspondencia clase → color ----------------------------------- */
+.plano .f-none { fill: none; }
+.plano .f-exterior { fill: var(--pl-exterior); }
+.plano .f-suelo-1 { fill: var(--pl-suelo-1); }
+.plano .f-suelo-2 { fill: var(--pl-suelo-2); }
+.plano .f-suelo-3 { fill: var(--pl-suelo-3); }
+.plano .f-suelo-hueco { fill: var(--pl-suelo-1); }
+.plano .s-junta { stroke: var(--pl-junta); fill: none; }
+.plano .f-madera-1 { fill: var(--pl-madera-1); }
+.plano .f-madera-2 { fill: var(--pl-madera-2); }
+.plano .s-junta-madera { stroke: var(--pl-junta-madera); fill: none; }
+.plano .f-tarima-1 { fill: var(--pl-tarima-1); }
+.plano .f-tarima-2 { fill: var(--pl-tarima-2); }
+.plano .f-arena { fill: var(--pl-arena); }
+.plano .f-arena-2 { fill: var(--pl-arena-2); }
+.plano .stop-mar-1 { stop-color: var(--pl-mar-1); }
+.plano .stop-mar-2 { stop-color: var(--pl-mar-2); }
+.plano .s-espuma { stroke: var(--pl-espuma); }
+.plano .s-pared { stroke: var(--pl-pared); }
+.plano .s-pared-borde { stroke: var(--pl-pared-borde); }
+.plano .f-ventana { fill: var(--pl-ventana); }
+.plano .s-marco { stroke: var(--pl-marco); }
+.plano .s-puerta { stroke: var(--pl-puerta); }
+.plano .f-mueble { fill: var(--pl-mueble); }
+.plano .f-mueble-2 { fill: var(--pl-mueble-2); }
+.plano .f-maceta { fill: var(--pl-maceta); }
+.plano .f-tierra { fill: var(--pl-tierra); }
+.plano .f-hoja { fill: var(--pl-hoja); }
+.plano .f-hoja-2 { fill: var(--pl-hoja-2); }
+.plano .f-hoja-3 { fill: var(--pl-hoja-3); }
+.plano .f-tronco { fill: var(--pl-tronco); }
+.plano .f-lavanda { fill: var(--pl-lavanda); }
+.plano .f-geranio { fill: var(--pl-geranio); }
+.plano .f-limon { fill: var(--pl-limon); }
+.plano .f-ceramica { fill: var(--pl-ceramica); }
+.plano .f-azul { fill: var(--pl-azul); }
+.plano .s-azul { stroke: var(--pl-azul); }
+.plano .f-hueco { fill: var(--pl-hueco); }
+.plano .f-barro { fill: var(--pl-barro); }
+.plano .f-barro-2 { fill: var(--pl-barro-2); }
+.plano .s-barro { stroke: var(--pl-barro); }
+.plano .f-palma { fill: var(--pl-palma); }
+.plano .f-palma-2 { fill: var(--pl-palma-2); }
+.plano .s-palma { stroke: var(--pl-tronco); opacity: .4; }
+.plano .f-buganvilla { fill: var(--pl-buganvilla); }
+.plano .f-buganvilla-2 { fill: var(--pl-buganvilla-2); }
+.plano .f-lona { fill: var(--pl-lona); }
+.plano .f-lona-2 { fill: var(--pl-lona-2); }
+.plano .f-botella-1 { fill: var(--pl-botella-1); }
+.plano .f-botella-2 { fill: var(--pl-botella-2); }
+.plano .f-botella-3 { fill: var(--pl-botella-3); }
+.plano .f-botella-4 { fill: var(--pl-botella-4); }
+.plano .f-taburete-pata { fill: var(--pl-taburete-pata); }
+.plano .f-taburete { fill: var(--pl-taburete); }
+.plano .f-marmol { fill: var(--pl-marmol); }
+.plano .s-marmol { stroke: var(--pl-marmol-borde); }
+.plano .f-metal { fill: var(--pl-metal); }
+.plano .f-caja { fill: var(--pl-caja); }
+.plano .f-pantalla { fill: var(--pl-pantalla); }
+.plano .f-barrica { fill: var(--pl-barrica); }
+.plano .f-barrica-2 { fill: var(--pl-barrica-2); }
+.plano .s-aro { stroke: var(--pl-aro); }
+.plano .f-barca { fill: var(--pl-barca); }
+.plano .s-mastil { stroke: var(--pl-mastil); }
+.plano .f-cal { fill: var(--pl-cal); }
+.plano .f-zocalo { fill: var(--pl-zocalo); }
+.plano .f-puerta-azul { fill: var(--pl-puerta-azul); }
+.plano .s-barandilla { stroke: var(--pl-barandilla); }
+.plano .s-salvavidas { stroke: var(--pl-salvavidas); }
+.plano .s-salvavidas-2 { stroke: var(--pl-salvavidas-2); }
+.plano .f-silla { fill: var(--pl-silla); }
+.plano .f-silla-respaldo { fill: var(--pl-silla-respaldo); }
+.plano .s-silla-terraza { stroke: var(--pl-silla-borde); }
+.plano .f-silla-terraza-respaldo { fill: var(--pl-silla-terraza-respaldo); }
+.plano .f-raya-1 { fill: var(--pl-raya-1); }
+.plano .f-raya-2 { fill: var(--pl-raya-2); }
+.plano .f-borde-mesa { fill: var(--pl-borde-mesa); }
+.plano .s-mantel { stroke: var(--pl-mantel-linea); }
+.plano .s-tablas { stroke: var(--pl-tablas); }
+
+.plano .rotulo {
+  font: 700 10.5px var(--sans);
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  fill: var(--pl-rotulo);
+}
+.plano .rotulo--exterior { fill: var(--pl-rotulo); }
+.plano .rotulo--mar { fill: #fff; opacity: .9; }
+
+/* --- Contenedor ------------------------------------------------------ */
+.vista-sala { display: flex; flex-direction: column; }
+.plano-envoltura {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  container-type: size;
+}
+.plano {
+  display: block;
+  /* el plano mantiene su proporción 1000 × 620 y ocupa todo lo que cabe */
+  width: min(100cqw, 100cqh * 1000 / 620);
+  height: auto;
+  aspect-ratio: 1000 / 620;
+  overflow: hidden;
+  border-radius: 18px;
+  background: var(--pl-exterior);
+  box-shadow: 0 1px 2px rgba(0,0,0,.06), 0 18px 40px -22px rgba(29,42,46,.45);
+  touch-action: none;
+  user-select: none;
+  animation: aparece-tpv 360ms var(--transicion) both;
+}
+.plano .escena, .plano .deco, .plano .sombrilla { pointer-events: none; }
+.plano .sombrilla { opacity: var(--pl-sombrilla-opacidad); }
+
+/* --- Mesas ----------------------------------------------------------- */
+.plano .mesa-plano { cursor: pointer; outline: none; }
+.plano .mesa-zona { fill: transparent; }
+.plano .tablero {
+  fill: var(--pl-mantel);
+  stroke: var(--pl-mantel-linea);
+  stroke-width: 1;
+  transition: fill var(--transicion), stroke var(--transicion);
+}
+.plano[data-tipo="barra"] .tablero { fill: var(--pl-redonda); }
+.plano .tablero--teca { fill: var(--pl-teca); stroke: rgba(90,60,30,.25); }
+
+.plano .mesa-plano--abierto .tablero { fill: var(--pl-ocupada-suave); stroke: var(--pl-ocupada); stroke-width: 3; }
+.plano .mesa-plano--cerrado .tablero { fill: var(--pl-cuenta-suave); stroke: var(--pl-cuenta); stroke-width: 3; }
+
+.plano .mesa-plano:hover .tablero,
+.plano .mesa-plano:focus-visible .tablero { stroke: var(--pl-seleccion); stroke-width: 3; }
+.plano .mesa-plano:focus-visible .mesa-zona { stroke: var(--pl-seleccion); stroke-width: 1.5; stroke-dasharray: 4 4; }
+
+.plano .mesa-num { font-family: var(--serif); font-weight: 700; fill: var(--pl-texto); }
+.plano .mesa-total { font-family: var(--sans); font-weight: 800; fill: var(--pl-ocupada); }
+.plano .mesa-plano--cerrado .mesa-total { fill: var(--pl-cuenta); }
+.plano .mesa-globo rect { fill: var(--pl-ocupada); }
+.plano .mesa-plano--cerrado .mesa-globo rect { fill: var(--pl-cuenta); }
+.plano .mesa-globo text { font: 800 10.5px var(--sans); fill: #fff; }
+
+/* Modo edición */
+.plano.editando .mesa-plano { cursor: grab; }
+.plano.editando .mesa-plano.arrastrando { cursor: grabbing; }
+.plano.editando .mesa-plano.arrastrando > g { opacity: .85; }
+.plano .mesa-seleccion { fill: rgba(47,111,149,.08); stroke: var(--pl-seleccion); stroke-width: 2; stroke-dasharray: 7 5; }
+.plano .zona-util { fill: none; stroke: var(--pl-seleccion); stroke-opacity: .4; stroke-width: 1.5; stroke-dasharray: 10 7; }
+
+/* --- Barra de edición ------------------------------------------------ */
+.editor-plano {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+  padding: 10px 12px 10px 18px;
+  border: 1px solid var(--borde-2);
+  border-radius: 999px;
+  background: var(--panel);
+  animation: aparece-tpv 240ms var(--transicion) both;
+}
+.editor-plano__ayuda { color: var(--texto-2); font-size: 13.5px; }
+.editor-plano__seleccion { display: flex; align-items: center; gap: 8px; }
+.editor-plano__seleccion strong { font-family: var(--serif); font-size: 18px; margin-right: 4px; }
+.editor-plano__plazas { min-width: 74px; text-align: center; font-weight: 700; }
+.editor-plano__acciones { display: flex; gap: 8px; margin-left: auto; }
+.editor-plano__acciones .btn { min-height: 38px; }
+
+.aforo { color: var(--texto-2); }
+.aforo b { color: var(--texto); }
+
+@media (max-width: 820px) {
+  .plano-envoltura { container-type: normal; }
+  .plano { width: 100%; }
+  .editor-plano { border-radius: var(--radio); }
+  .editor-plano__acciones { margin-left: 0; flex-wrap: wrap; }
+}

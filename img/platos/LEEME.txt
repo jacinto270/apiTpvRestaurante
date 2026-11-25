@@ -1,0 +1,5 @@
+IMÁGENES DE PRUEBA — 66 productos
+Formato: WebP, 300x300 px, compresión optimizada.
+Los nombres coinciden con la columna `imagen` de la base de datos, salvo que la extensión se ha cambiado a .webp para ahorrar espacio.
+Son ilustraciones genéricas de prueba, no fotografías reales de cada plato.
+Para usarlas directamente, cambia en la BD las rutas .jpg por .webp, o convierte las imágenes a JPG si necesitas conservar las rutas originales.

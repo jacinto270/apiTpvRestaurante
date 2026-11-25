@@ -1,0 +1,1 @@
+14 iconos SVG de alérgenos. Vectoriales, fondo transparente, trazo monocromo y tamaño 64x64. Los nombres de archivo coinciden con las rutas de tu INSERT SQL.

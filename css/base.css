@@ -1,0 +1,181 @@
+/* =====================================================================
+   Olea · cocina mediterránea — estilos base compartidos
+   ===================================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Manrope:wght@400;500;600;700&display=swap');
+
+:root {
+  /* Paleta: arena, olivo, terracota, azul egeo */
+  --arena:        #f4eee3;
+  --arena-2:      #ebe3d4;
+  --marfil:       #fbf8f2;
+  --tinta:        #1d2a2e;
+  --tinta-2:      #4d5a5c;
+  --tinta-3:      #858d8b;
+  --olivo:        #55623f;
+  --olivo-claro:  #a3ad85;
+  --terracota:    #b5563a;
+  --terracota-2:  #9a4630;
+  --egeo:         #20506d;
+  --oro:          #b48d42;
+  --linea:        rgba(29, 42, 46, .12);
+  --linea-fuerte: rgba(29, 42, 46, .22);
+
+  --serif: 'Cormorant Garamond', 'Times New Roman', serif;
+  --sans:  'Manrope', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  --radio:    14px;
+  --radio-sm: 9px;
+  --sombra:   0 1px 2px rgba(29,42,46,.05), 0 8px 24px -12px rgba(29,42,46,.18);
+  --sombra-alta: 0 2px 6px rgba(29,42,46,.06), 0 24px 48px -20px rgba(29,42,46,.35);
+  --transicion: 180ms cubic-bezier(.2,.7,.3,1);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--tinta);
+  background: var(--arena);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 {
+  font-family: var(--serif);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -.01em;
+  margin: 0;
+  text-wrap: balance;
+}
+
+p { margin: 0; text-wrap: pretty; }
+a { color: inherit; }
+img { display: block; max-width: 100%; }
+button, input, select, textarea { font: inherit; color: inherit; }
+
+:focus-visible {
+  outline: 2px solid var(--terracota);
+  outline-offset: 2px;
+}
+
+.versalitas {
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
+.num { font-variant-numeric: tabular-nums; }
+
+/* --- Marca ------------------------------------------------------------ */
+.marca {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  font-family: var(--serif);
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: .02em;
+}
+.marca svg { width: 28px; height: 28px; color: var(--olivo); }
+
+/* --- Botones ---------------------------------------------------------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 18px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+  cursor: pointer;
+  background: var(--tinta);
+  color: var(--marfil);
+  transition: background var(--transicion), transform var(--transicion), border-color var(--transicion), opacity var(--transicion);
+}
+.btn:hover { background: #2c3c41; }
+.btn:active { transform: scale(.98); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn--acento { background: var(--terracota); }
+.btn--acento:hover { background: var(--terracota-2); }
+.btn--olivo { background: var(--olivo); }
+.btn--olivo:hover { background: #46512f; }
+.btn--fantasma { background: transparent; color: inherit; border-color: var(--linea-fuerte); }
+.btn--fantasma:hover { background: rgba(29,42,46,.05); }
+.btn--peligro { background: transparent; color: var(--terracota); border-color: currentColor; }
+.btn--peligro:hover { background: rgba(181,86,58,.08); }
+.btn--grande { min-height: 52px; padding: 0 26px; font-size: 15px; }
+
+/* --- Etiquetas -------------------------------------------------------- */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  background: var(--arena-2);
+  color: var(--tinta-2);
+  white-space: nowrap;
+}
+
+/* --- Avisos (toast) --------------------------------------------------- */
+.avisos {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  display: grid;
+  gap: 8px;
+  z-index: 100;
+  pointer-events: none;
+}
+.aviso {
+  padding: 12px 20px;
+  border-radius: 999px;
+  background: var(--tinta);
+  color: var(--marfil);
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: var(--sombra-alta);
+  animation: aviso-entra 240ms var(--transicion) both;
+}
+.aviso--error { background: var(--terracota-2); }
+.aviso.saliendo { animation: aviso-sale 200ms ease-in both; }
+@keyframes aviso-entra { from { opacity: 0; transform: translateY(10px); } }
+@keyframes aviso-sale  { to   { opacity: 0; transform: translateY(6px); } }
+
+/* --- Utilidades ------------------------------------------------------- */
+.oculto { display: none !important; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+.cargando {
+  display: grid;
+  place-items: center;
+  padding: 64px 0;
+  color: var(--tinta-3);
+}
+.cargando::before {
+  content: '';
+  width: 26px; height: 26px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: girar .8s linear infinite;
+}
+@keyframes girar { to { transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+}

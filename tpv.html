@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#2aaae8">
+  <title>TPV · Olea</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/tpv.css">
+  <link rel="stylesheet" href="css/plano.css">
+</head>
+<body class="tpv">
+
+  <!-- ============================ ACCESO ============================ -->
+  <section class="acceso" id="acceso">
+    <div class="acceso__marco">
+      <header class="acceso__cabecera">
+        <span class="marca marca-tpv">Olea</span>
+        <p class="acceso__reloj num" id="reloj-acceso"></p>
+      </header>
+
+      <div id="paso-empleado">
+        <h1 class="acceso__titulo">¿Quién eres?</h1>
+        <div class="segmentos" id="filtro-rango" role="tablist">
+          <button role="tab" data-grupo="sala" aria-selected="true">Sala</button>
+          <button role="tab" data-grupo="cocina" aria-selected="false">Cocina</button>
+          <button role="tab" data-grupo="direccion" aria-selected="false">Dirección</button>
+        </div>
+        <div class="empleados" id="empleados"><div class="cargando"></div></div>
+      </div>
+
+      <div id="paso-pin" class="pin oculto">
+        <button class="volver" id="volver-empleado" type="button">← Cambiar de empleado</button>
+        <div class="pin__quien" id="pin-quien"></div>
+        <form id="form-pin" autocomplete="off">
+          <label class="sr" for="pin-input">Contraseña</label>
+          <input class="pin__input" id="pin-input" type="password" inputmode="numeric" maxlength="32" autocomplete="current-password">
+          <div class="pin__puntos" id="pin-puntos" aria-hidden="true"></div>
+          <p class="pin__error" id="pin-error" role="alert"></p>
+          <div class="teclado" id="teclado">
+            <button type="button">1</button><button type="button">2</button><button type="button">3</button>
+            <button type="button">4</button><button type="button">5</button><button type="button">6</button>
+            <button type="button">7</button><button type="button">8</button><button type="button">9</button>
+            <button type="button" data-accion="borrar" aria-label="Borrar">⌫</button>
+            <button type="button">0</button>
+            <button type="submit" class="teclado__ok" aria-label="Entrar">→</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ APLICACIÓN ======================== -->
+  <div class="app oculto" id="app">
+    <header class="barra">
+      <span class="marca marca-tpv">Olea</span>
+      <nav class="pestanas" id="pestanas" role="tablist">
+        <button role="tab" data-vista="sala" aria-selected="true">Sala</button>
+        <button role="tab" data-vista="cocina" aria-selected="false">Cocina <span class="globo oculto" id="globo-cocina"></span></button>
+        <button role="tab" data-vista="caja" aria-selected="false">Caja</button>
+      </nav>
+      <div class="barra__derecha">
+        <div class="barra__caja" title="Ventas cobradas hoy">
+          <span class="barra__etiqueta">Hoy</span>
+          <strong class="num" id="ventas-hoy">—</strong>
+        </div>
+        <span class="barra__reloj num" id="reloj"></span>
+        <button class="usuario" id="btn-salir" title="Cerrar sesión">
+          <span class="avatar" id="usuario-avatar"></span>
+          <span class="usuario__texto"><strong id="usuario-nombre"></strong><small id="usuario-rango"></small></span>
+          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M8 4H4v12h4M13 6l4 4-4 4M17 10H8"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- -------- Sala -------- -->
+    <main class="vista vista-sala" id="vista-sala">
+      <div class="sala__cabecera">
+        <div class="segmentos" id="salones" role="tablist"></div>
+        <ul class="leyenda">
+          <li><i class="punto punto--libre"></i>Libre <b class="num" id="n-libres"></b></li>
+          <li><i class="punto punto--abierto"></i>Ocupada <b class="num" id="n-ocupadas"></b></li>
+          <li><i class="punto punto--cerrado"></i>Cuenta pedida <b class="num" id="n-cuenta"></b></li>
+          <li class="aforo" id="aforo"></li>
+        </ul>
+        <button class="btn btn--fantasma oculto" id="btn-editar-plano" type="button">Editar distribución</button>
+      </div>
+
+      <div class="editor-plano oculto" id="editor-plano" role="toolbar" aria-label="Editar distribución">
+        <p class="editor-plano__ayuda" id="editor-ayuda">Arrastra las mesas para colocarlas. Toca una para cambiar sus sillas.</p>
+        <div class="editor-plano__seleccion oculto" id="editor-seleccion">
+          <strong id="sel-nombre"></strong>
+          <button class="mini" type="button" data-ed="menos" aria-label="Quitar una silla">−</button>
+          <span class="editor-plano__plazas num" id="sel-plazas"></span>
+          <button class="mini" type="button" data-ed="mas" aria-label="Añadir una silla">+</button>
+          <button class="mini mini--peligro" type="button" data-ed="borrar">Eliminar mesa</button>
+        </div>
+        <div class="editor-plano__acciones">
+          <button class="btn btn--fantasma" type="button" data-ed="anadir">+ Añadir mesa</button>
+          <button class="btn btn--fantasma" type="button" data-ed="cancelar">Cancelar</button>
+          <button class="btn btn--acento" type="button" data-ed="guardar">Guardar distribución</button>
+        </div>
+      </div>
+
+      <div class="plano-envoltura">
+        <svg class="plano" id="plano" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" aria-label="Plano del salón"></svg>
+      </div>
+    </main>
+
+    <!-- -------- Pedido -------- -->
+    <main class="vista vista-pedido oculto" id="vista-pedido">
+      <section class="comanda">
+        <div class="comanda__cabecera">
+          <button class="btn btn--fantasma" id="volver-sala">← Sala</button>
+          <label class="buscador-tpv">
+            <span class="sr">Buscar plato</span>
+            <input type="search" id="buscar-plato" placeholder="Buscar plato…" autocomplete="off">
+          </label>
+        </div>
+        <div class="generos" id="generos" role="tablist"></div>
+        <div class="botonera" id="botonera"></div>
+      </section>
+
+      <aside class="ticket" id="ticket" aria-label="Pedido">
+        <header class="ticket__cabecera">
+          <div>
+            <p class="ticket__salon" id="ticket-salon"></p>
+            <h2 class="ticket__mesa" id="ticket-mesa"></h2>
+          </div>
+          <div class="ticket__meta" id="ticket-meta"></div>
+        </header>
+        <ol class="lineas" id="lineas"></ol>
+        <footer class="ticket__pie">
+          <div class="ticket__total">
+            <span>Total</span>
+            <strong class="num" id="ticket-total">0,00 €</strong>
+          </div>
+          <div class="ticket__acciones" id="ticket-acciones"></div>
+        </footer>
+      </aside>
+    </main>
+
+    <!-- -------- Cocina -------- -->
+    <main class="vista oculto" id="vista-cocina">
+      <div class="cocina__cabecera">
+        <h2>Comandas</h2>
+        <label class="interruptor">
+          <input type="checkbox" id="ver-bebidas">
+          <span class="interruptor__pista"></span>
+          Mostrar bebidas
+        </label>
+      </div>
+      <div class="cocina" id="cocina"></div>
+    </main>
+
+    <!-- -------- Caja -------- -->
+    <main class="vista oculto" id="vista-caja">
+      <div class="caja__cabecera">
+        <h2>Caja del día</h2>
+        <input type="date" id="caja-fecha" class="campo campo--fecha">
+      </div>
+      <div class="kpis" id="kpis"></div>
+      <div class="caja__rejilla">
+        <section class="tarjeta">
+          <h3>Más vendidos</h3>
+          <ol class="ranking" id="ranking"></ol>
+        </section>
+        <section class="tarjeta">
+          <h3>Por forma de pago</h3>
+          <div id="formas-pago"></div>
+        </section>
+        <section class="tarjeta tarjeta--ancha">
+          <h3>Pedidos</h3>
+          <div class="tabla-envoltura"><table class="tabla" id="tabla-pedidos"></table></div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <!-- ============================ DIÁLOGOS ========================== -->
+  <dialog class="dialogo" id="dlg-cobro">
+    <form method="dialog" class="dialogo__cuerpo" id="form-cobro">
+      <header class="dialogo__cabecera">
+        <h2>Cobrar <span id="cobro-mesa"></span></h2>
+        <button value="cancelar" class="cerrar" aria-label="Cerrar">×</button>
+      </header>
+      <p class="cobro__total num" id="cobro-total"></p>
+      <div class="formas" id="formas">
+        <label><input type="radio" name="pago" value="efectivo" checked><span>Efectivo</span></label>
+        <label><input type="radio" name="pago" value="tarjeta"><span>Tarjeta</span></label>
+        <label><input type="radio" name="pago" value="bizum"><span>Bizum</span></label>
+      </div>
+      <div class="efectivo" id="bloque-efectivo">
+        <label class="campo-etiqueta" for="entregado">Entregado</label>
+        <input class="campo campo--grande num" id="entregado" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0,00">
+        <div class="rapidos" id="rapidos"></div>
+        <p class="cambio">Cambio <strong class="num" id="cambio">—</strong></p>
+      </div>
+      <footer class="dialogo__pie">
+        <button value="cancelar" class="btn btn--fantasma">Cancelar</button>
+        <button value="cobrar" class="btn btn--acento btn--grande" id="confirmar-cobro">Confirmar cobro</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <dialog class="dialogo dialogo--estrecho" id="dlg-confirmar">
+    <form method="dialog" class="dialogo__cuerpo">
+      <h2 id="confirmar-titulo"></h2>
+      <p class="dialogo__texto" id="confirmar-texto"></p>
+      <footer class="dialogo__pie">
+        <button value="no" class="btn btn--fantasma">Cancelar</button>
+        <button value="si" class="btn btn--acento" id="confirmar-si">Aceptar</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <dialog class="dialogo dialogo--estrecho" id="dlg-nota">
+    <form method="dialog" class="dialogo__cuerpo">
+      <h2>Nota para cocina</h2>
+      <p class="dialogo__texto" id="nota-plato"></p>
+      <input class="campo" id="nota-texto" maxlength="255" placeholder="Ej.: sin cebolla, al punto…">
+      <div class="rapidos" id="notas-rapidas"></div>
+      <footer class="dialogo__pie">
+        <button value="no" class="btn btn--fantasma">Cancelar</button>
+        <button value="si" class="btn btn--acento">Guardar</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <dialog class="dialogo dialogo--estrecho" id="dlg-mesa">
+    <form method="dialog" class="dialogo__cuerpo">
+      <h2>Cambiar de mesa</h2>
+      <p class="dialogo__texto">Elige una mesa libre.</p>
+      <div class="mesas-mini" id="mesas-libres"></div>
+      <footer class="dialogo__pie">
+        <button value="no" class="btn btn--fantasma">Cancelar</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <script src="js/api.js"></script>
+  <script src="js/plano.js"></script>
+  <script src="js/tpv.js"></script>
+</body>
+</html>
