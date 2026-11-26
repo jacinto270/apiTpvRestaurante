@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#2aaae8">
   <title>TPV · Olea</title>
-  <link rel="stylesheet" href="css/base.css">
-  <link rel="stylesheet" href="css/tpv.css">
-  <link rel="stylesheet" href="css/plano.css">
+  <link rel="stylesheet" href="css/base.css?v=20261126s">
+  <link rel="stylesheet" href="css/tpv.css?v=20261126s">
+  <link rel="stylesheet" href="css/plano.css?v=20261126s">
 </head>
 <body class="tpv">
 
@@ -55,9 +55,10 @@
     <header class="barra">
       <span class="marca marca-tpv">Olea</span>
       <nav class="pestanas" id="pestanas" role="tablist">
-        <button role="tab" data-vista="sala" aria-selected="true">Sala</button>
+        <button role="tab" data-vista="sala" aria-selected="true">Sala <span class="globo globo--listo oculto" id="globo-sala" title="Platos listos para servir"></span></button>
         <button role="tab" data-vista="cocina" aria-selected="false">Cocina <span class="globo oculto" id="globo-cocina"></span></button>
         <button role="tab" data-vista="caja" aria-selected="false">Caja</button>
+        <button role="tab" data-vista="reservas" aria-selected="false" class="oculto" id="tab-reservas">Reservas <span class="globo oculto" id="globo-reservas"></span></button>
       </nav>
       <div class="barra__derecha">
         <div class="barra__caja" title="Ventas cobradas hoy">
@@ -81,6 +82,7 @@
           <li><i class="punto punto--libre"></i>Libre <b class="num" id="n-libres"></b></li>
           <li><i class="punto punto--abierto"></i>Ocupada <b class="num" id="n-ocupadas"></b></li>
           <li><i class="punto punto--cerrado"></i>Cuenta pedida <b class="num" id="n-cuenta"></b></li>
+          <li><i class="punto punto--reservada"></i>Reservada hoy <b class="num" id="n-reservadas"></b></li>
           <li class="aforo" id="aforo"></li>
         </ul>
         <button class="btn btn--fantasma oculto" id="btn-editar-plano" type="button">Editar distribución</button>
@@ -145,9 +147,9 @@
       <div class="cocina__cabecera">
         <h2>Comandas</h2>
         <label class="interruptor">
-          <input type="checkbox" id="ver-bebidas">
+          <input type="checkbox" id="ver-espera" checked>
           <span class="interruptor__pista"></span>
-          Mostrar bebidas
+          Mostrar platos en espera
         </label>
       </div>
       <div class="cocina" id="cocina"></div>
@@ -156,24 +158,67 @@
     <!-- -------- Caja -------- -->
     <main class="vista oculto" id="vista-caja">
       <div class="caja__cabecera">
-        <h2>Caja del día</h2>
-        <input type="date" id="caja-fecha" class="campo campo--fecha">
+        <div>
+          <h2>Caja</h2>
+          <p class="caja__periodo" id="caja-periodo"></p>
+        </div>
+        <div class="caja__botones">
+          <button class="btn btn--fantasma" id="btn-informe-x" type="button">Imprimir informe X</button>
+          <button class="btn btn--acento" id="btn-cierre-z" type="button">Cierre Z del día</button>
+        </div>
       </div>
+      <p class="aviso-caja oculto" id="aviso-mesas" role="status"></p>
       <div class="kpis" id="kpis"></div>
+
       <div class="caja__rejilla">
-        <section class="tarjeta">
-          <h3>Más vendidos</h3>
-          <ol class="ranking" id="ranking"></ol>
+        <section class="tarjeta tarjeta--arqueo">
+          <h3>Arqueo de efectivo</h3>
+          <dl class="arqueo__cuentas" id="arqueo-cuentas"></dl>
+          <p class="arqueo__ayuda">Cuenta el cajón por billetes y monedas (o escribe el total directamente):</p>
+          <div class="arqueo__monedas" id="arqueo-monedas"></div>
+          <label class="arqueo__total">
+            <span>Efectivo contado</span>
+            <input class="campo campo--grande num" id="arqueo-contado" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0,00">
+          </label>
+          <dl class="arqueo__resultado" id="arqueo-resultado"></dl>
         </section>
         <section class="tarjeta">
           <h3>Por forma de pago</h3>
           <div id="formas-pago"></div>
+          <h3 class="tarjeta__sub">Anulaciones</h3>
+          <div id="caja-anulados"></div>
         </section>
         <section class="tarjeta tarjeta--ancha">
-          <h3>Pedidos</h3>
-          <div class="tabla-envoltura"><table class="tabla" id="tabla-pedidos"></table></div>
+          <h3>Ventas por camarero</h3>
+          <div class="tabla-envoltura"><table class="tabla" id="tabla-camareros"></table></div>
+        </section>
+        <section class="tarjeta tarjeta--ancha">
+          <h3>Productos vendidos</h3>
+          <div class="tabla-envoltura"><table class="tabla" id="tabla-productos"></table></div>
+        </section>
+        <section class="tarjeta tarjeta--ancha oculto" id="tarjeta-cierres">
+          <h3>Cierres Z anteriores</h3>
+          <div class="tabla-envoltura"><table class="tabla" id="tabla-cierres"></table></div>
         </section>
       </div>
+    </main>
+
+    <!-- -------- Reservas (gerencia y jefes de sala) -------- -->
+    <main class="vista oculto" id="vista-reservas">
+      <div class="reservas__cabecera">
+        <h2>Reservas</h2>
+        <div class="segmentos" id="filtro-reservas" role="tablist">
+          <button role="tab" data-filtro="pendiente" aria-selected="true">Por confirmar</button>
+          <button role="tab" data-filtro="confirmada" aria-selected="false">Confirmadas</button>
+          <button role="tab" data-filtro="todas" aria-selected="false">Todas</button>
+          <button role="tab" data-filtro="lista" aria-selected="false">Lista negra</button>
+        </div>
+      </div>
+      <p class="reservas__aviso">
+        <strong>Antes de confirmar, llama al cliente</strong> para comprobar que la solicitud es real.
+        Nunca pidas pagos ni datos bancarios por correo o teléfono: si alguien lo hace en nombre del restaurante, es una estafa.
+      </p>
+      <div id="lista-reservas"><div class="cargando"></div></div>
     </main>
   </div>
 
@@ -227,6 +272,19 @@
     </form>
   </dialog>
 
+  <dialog class="dialogo dialogo--estrecho" id="dlg-reserva">
+    <form method="dialog" class="dialogo__cuerpo">
+      <h2>Confirmar reserva</h2>
+      <p class="dialogo__texto" id="reserva-resumen"></p>
+      <label class="campo-etiqueta" for="reserva-mesa">Mesa (opcional)</label>
+      <select class="campo" id="reserva-mesa"></select>
+      <footer class="dialogo__pie">
+        <button value="no" class="btn btn--fantasma">Cancelar</button>
+        <button value="si" class="btn btn--acento">Confirmar reserva</button>
+      </footer>
+    </form>
+  </dialog>
+
   <dialog class="dialogo dialogo--estrecho" id="dlg-mesa">
     <form method="dialog" class="dialogo__cuerpo">
       <h2>Cambiar de mesa</h2>
@@ -238,8 +296,11 @@
     </form>
   </dialog>
 
-  <script src="js/api.js"></script>
-  <script src="js/plano.js"></script>
-  <script src="js/tpv.js"></script>
+  <!-- Informe X / Z en formato ticket (sólo se ve al imprimir) -->
+  <div class="informe-imprimir" id="informe-imprimir" aria-hidden="true"></div>
+
+  <script src="js/api.js?v=20261126s"></script>
+  <script src="js/plano.js?v=20261126s"></script>
+  <script src="js/tpv.js?v=20261126s"></script>
 </body>
 </html>

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+<rect width="200" height="200" fill="#f6e6ec"/>
+<circle cx="64" cy="54" r="70" fill="#fff" opacity=".35"/>
+<path d="M90 30 L110 30 L110 62 C 124 70, 126 82, 126 96 L126 166 C 126 170, 122 172, 118 172 L82 172 C 78 172, 74 170, 74 166 L74 96 C 74 82, 76 70, 90 62Z" fill="#bfe0d6" stroke="#0b2e47" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="M90 26 L110 26 L110 52 L90 52Z" fill="#0b6fb8" stroke="#0b2e47" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+    <rect x="74" y="112" width="52" height="38" rx="4" fill="#e3f4fc" stroke="#0b2e47" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+    <text x="100" y="135" text-anchor="middle" dominant-baseline="middle" font-family="Georgia, serif" font-size="8.1" font-weight="700" fill="#0b2e47">ALBARIÑO</text>
+    <path d="M82 100 L82 160" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity=".45"/>
+</svg>

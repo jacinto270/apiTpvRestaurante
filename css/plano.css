@@ -223,3 +223,14 @@
   .editor-plano { border-radius: var(--radio); }
   .editor-plano__acciones { margin-left: 0; flex-wrap: wrap; }
 }
+
+/* Mesa con reserva confirmada para hoy */
+.tpv { --pl-reservada: #0b6fb8; --pl-reservada-suave: #dcefff; }
+.plano .mesa-plano--reservada .tablero { fill: var(--pl-reservada-suave); stroke: var(--pl-reservada); stroke-width: 3; stroke-dasharray: 6 4; }
+.plano .mesa-plano--reservada .mesa-total { fill: var(--pl-reservada); }
+.plano .mesa-plano--reservada .mesa-globo rect { fill: var(--pl-reservada); }
+
+/* Mesa con platos listos en el pase: la campana late para llamar la atención */
+.plano .mesa-globo--listo rect { fill: #13845f; }
+.plano .mesa-globo--listo rect { animation: latido-listo 1.4s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes latido-listo { 50% { transform: scale(1.18); } }

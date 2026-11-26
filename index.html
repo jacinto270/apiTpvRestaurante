@@ -6,8 +6,8 @@
   <meta name="theme-color" content="#2aaae8">
   <title>Olea · Cocina mediterránea</title>
   <meta name="description" content="Carta de Olea, cocina mediterránea: entrantes, arroces, pescados, postres y vinos.">
-  <link rel="stylesheet" href="css/base.css">
-  <link rel="stylesheet" href="css/carta.css">
+  <link rel="stylesheet" href="css/base.css?v=20261126s">
+  <link rel="stylesheet" href="css/carta.css?v=20261126s">
 </head>
 <body class="noche">
 
@@ -17,6 +17,7 @@
       <nav class="cabecera__nav" aria-label="Principal">
         <a href="#carta">Carta</a>
         <a href="#alergenos-info">Alérgenos</a>
+        <a href="#reservar" class="cabecera__reservar">Reservar</a>
       </nav>
     </div>
   </header>
@@ -65,10 +66,13 @@
           Arroces a la leña, pescado de lonja y verduras de temporada.<br>
           Una carta para compartir sin prisa, con el sol de verano sobre el mar.
         </p>
-        <a class="boton-oro" href="#carta">
-          Descubrir la carta
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg>
-        </a>
+        <div class="portada__acciones">
+          <a class="boton-oro" href="#carta">
+            Descubrir la carta
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg>
+          </a>
+          <a class="boton-oro boton-oro--lleno" href="#reservar">Reservar mesa</a>
+        </div>
       </div>
       <div class="portada__scroll" aria-hidden="true"><span></span></div>
     </section>
@@ -107,6 +111,122 @@
         <h2 class="sr" id="carta-titulo">Carta</h2>
         <p class="aviso-filtro oculto" id="aviso-filtro" role="status"></p>
         <div id="contenido-carta"><div class="cargando" aria-label="Cargando carta"></div></div>
+      </div>
+    </section>
+
+    <!-- ======================= RESERVAS ======================= -->
+    <section class="reservar" id="reservar" aria-labelledby="titulo-reservar">
+      <div class="contenedor reservar__rejilla">
+        <div class="reservar__intro">
+          <p class="versalitas">Reservas</p>
+          <h2 id="titulo-reservar">Guárdanos<br><em>una mesa</em></h2>
+          <p>
+            Cuéntanos cuándo venís y cuántos sois. Revisamos cada solicitud a mano y te
+            contactamos por teléfono o correo para confirmarla: hasta entonces la reserva
+            no es firme.
+          </p>
+          <ul class="reservar__notas">
+            <li>Turnos de comida y de cena, con hasta <span id="dias-max">60</span> días de antelación.</li>
+            <li>Grupos de más de <span id="max-comensales">12</span> personas: llámanos.</li>
+            <li>Este formulario nunca te pedirá datos de pago.</li>
+          </ul>
+        </div>
+
+        <form class="formulario" id="form-reserva" novalidate>
+          <div class="formulario__fila">
+            <label class="campo-r">
+              <span>Fecha</span>
+              <input type="date" name="fecha" required>
+            </label>
+            <label class="campo-r">
+              <span>Hora</span>
+              <select name="hora" required><option value="">Elige hora</option></select>
+            </label>
+          </div>
+
+          <p class="aviso-aforo oculto" id="aviso-aforo" role="status"></p>
+          <p class="dias-completos oculto" id="dias-completos"></p>
+
+          <fieldset class="campo-r comensales">
+            <legend>Comensales</legend>
+            <div class="comensales__control">
+              <button type="button" class="comensales__btn" data-paso="-1" aria-label="Uno menos">−</button>
+              <output name="comensales_vista" class="comensales__num" aria-live="polite">2</output>
+              <button type="button" class="comensales__btn" data-paso="1" aria-label="Uno más">+</button>
+              <input type="hidden" name="comensales" value="2">
+            </div>
+          </fieldset>
+
+          <fieldset class="campo-r">
+            <legend>Zona preferida</legend>
+            <div class="zonas" id="zonas">
+              <label><input type="radio" name="zona" value="" checked><span>Sin preferencia</span></label>
+              <label><input type="radio" name="zona" value="comedor"><span>Comedor</span></label>
+              <label><input type="radio" name="zona" value="terraza"><span>Terraza</span></label>
+              <label><input type="radio" name="zona" value="barra"><span>Barra</span></label>
+            </div>
+          </fieldset>
+
+          <div class="formulario__fila">
+            <label class="campo-r">
+              <span>Nombre</span>
+              <input type="text" name="nombre" autocomplete="name" maxlength="80" required>
+            </label>
+            <label class="campo-r">
+              <span>Teléfono</span>
+              <input type="tel" name="telefono" autocomplete="tel" maxlength="20" required>
+            </label>
+          </div>
+          <label class="campo-r">
+            <span>Correo electrónico</span>
+            <input type="email" name="email" autocomplete="email" maxlength="120" required>
+          </label>
+          <label class="campo-r">
+            <span>Comentarios <small>(opcional: alergias, celebración, trona…)</small></span>
+            <textarea name="comentarios" rows="3" maxlength="500"></textarea>
+          </label>
+
+          <!-- Campo trampa para bots: invisible para personas y lectores de pantalla -->
+          <div class="trampa" aria-hidden="true">
+            <label>Tu web <input type="text" name="web" tabindex="-1" autocomplete="off"></label>
+          </div>
+
+          <div class="verificacion">
+            <label class="campo-r">
+              <span>Verificación anti-spam: <strong id="pregunta">…</strong></span>
+              <input type="text" name="reto_respuesta" inputmode="numeric" maxlength="3" autocomplete="off" required>
+            </label>
+            <button type="button" class="verificacion__otra" id="otra-pregunta">Otra pregunta</button>
+          </div>
+
+          <label class="casilla">
+            <input type="checkbox" name="acepta_privacidad" required>
+            <span>Acepto que Olea use estos datos solo para gestionar mi reserva y contactarme sobre ella.</span>
+          </label>
+
+          <p class="formulario__error" id="error-reserva" role="alert"></p>
+          <button class="boton-oro boton-oro--lleno formulario__enviar" type="submit" id="enviar-reserva">Solicitar reserva</button>
+        </form>
+
+        <div class="reserva-ok oculto" id="reserva-ok" tabindex="-1">
+          <div class="reserva-ok__sello" aria-hidden="true">✓</div>
+          <p class="versalitas">Solicitud recibida</p>
+          <h3 id="reserva-ok-titulo"></h3>
+          <p id="reserva-ok-texto"></p>
+          <form class="codigo oculto" id="form-codigo" novalidate>
+            <label class="campo-r">
+              <span>Código del correo</span>
+              <input type="text" name="codigo" inputmode="numeric" autocomplete="one-time-code" maxlength="7" placeholder="000000" required>
+            </label>
+            <button class="boton-oro boton-oro--lleno" type="submit">Verificar</button>
+            <p class="formulario__error" id="error-codigo" role="alert"></p>
+          </form>
+          <div class="anular oculto" id="anular-acciones">
+            <button type="button" class="boton-oro boton-oro--peligro" id="anular-si">Sí, anular mi reserva</button>
+            <button type="button" class="boton-oro" id="anular-no">No, la mantengo</button>
+          </div>
+          <button type="button" class="boton-oro" id="otra-reserva">Hacer otra solicitud</button>
+        </div>
       </div>
     </section>
 
@@ -153,7 +273,8 @@
     </div>
   </dialog>
 
-  <script src="js/api.js"></script>
-  <script src="js/carta.js"></script>
+  <script src="js/api.js?v=20261126s"></script>
+  <script src="js/carta.js?v=20261126s"></script>
+  <script src="js/reserva.js?v=20261126s"></script>
 </body>
 </html>

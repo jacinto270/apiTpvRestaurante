@@ -412,9 +412,11 @@ const Plano = (() => {
   function mesaSVG(m, tipo, { editando, seleccion }) {
     const g = geometria(m, tipo);
     const p = m.pedido;
-    const estado = p ? p.estado : 'libre';
+    const r = !p && !editando ? m.reserva : null;   // reserva confirmada de hoy (si la mesa no está ya ocupada)
+    const estado = p ? p.estado : r ? 'reservada' : 'libre';
     const numero = m.nombre.replace(new RegExp(`^${m.salon}\\s*`, 'i'), '') || m.nombre;
-    const etiqueta = `${m.nombre}, ${m.comensales} plazas, ${p ? (p.estado === 'cerrado' ? 'cuenta pedida' : 'ocupada') : 'libre'}`;
+    const etiqueta = `${m.nombre}, ${m.comensales} plazas, ${p ? (p.estado === 'cerrado' ? 'cuenta pedida' : 'ocupada')
+      : r ? `reservada a las ${r.hora} para ${r.nombre} (${r.comensales})` : 'libre'}`;
 
     let tablero;
     if (g.forma === 'redonda') {
@@ -430,16 +432,19 @@ const Plano = (() => {
     }
 
     const pequena = (g.forma === 'redonda' ? g.r * 2 : Math.min(g.w, g.h)) < 58;
-    const textos = p
+    const linea2 = p ? euros(p.total) : r ? r.hora : null;
+    const textos = linea2
       ? `<text y="${pequena ? -3 : -5}" class="mesa-num" text-anchor="middle" font-size="${pequena ? 17 : 20}">${esc(numero)}</text>
-         <text y="${pequena ? 12 : 13}" class="mesa-total" text-anchor="middle" font-size="${pequena ? 10.5 : 12}">${esc(euros(p.total))}</text>`
+         <text y="${pequena ? 12 : 13}" class="mesa-total" text-anchor="middle" font-size="${pequena ? 10.5 : 12}">${esc(linea2)}</text>`
       : `<text y="${pequena ? 6 : 7}" class="mesa-num" text-anchor="middle" font-size="${pequena ? 19 : 22}">${esc(numero)}</text>`;
 
     const minutos = p ? minutosDesde(p.fecha) : 0;
-    const globo = p ? `
-      <g transform="translate(${(g.forma === 'redonda' ? g.r * .72 : g.w / 2) + 2} ${(g.forma === 'redonda' ? -g.r * .72 : -g.h / 2) - 2})" class="mesa-globo">
-        <rect x="-15" y="-9" width="30" height="18" rx="9"/>
-        <text y="4" text-anchor="middle">${minutos}′</text>
+    const listos = p?.listos || 0;
+    const textoGlobo = listos ? `🔔 ${listos}` : p ? `${minutos}′` : r ? `R · ${r.comensales}` : '';
+    const globo = textoGlobo ? `
+      <g transform="translate(${(g.forma === 'redonda' ? g.r * .72 : g.w / 2) + 2} ${(g.forma === 'redonda' ? -g.r * .72 : -g.h / 2) - 2})" class="mesa-globo ${listos ? 'mesa-globo--listo' : ''}">
+        <rect x="-17" y="-9" width="34" height="18" rx="9"/>
+        <text y="4" text-anchor="middle">${esc(textoGlobo)}</text>
       </g>` : '';
 
     const sombra = tipo === 'terraza' ? sombrilla(0, 0, Math.max(g.w, g.h) / 2 + 34) : '';

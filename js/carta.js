@@ -47,10 +47,12 @@
     // Titular letra a letra
     let retraso = 300;
     document.querySelectorAll('.linea-titulo').forEach((linea) => {
-      linea.innerHTML = [...linea.dataset.texto].map((c) => {
+      // Cada palabra en un bloque que no se parte: en pantallas estrechas el
+      // titular salta de línea entre palabras, nunca a mitad de una
+      linea.innerHTML = linea.dataset.texto.split(' ').map((palabra) => `<span class="palabra">${[...palabra].map((c) => {
         retraso += 38;
-        return c === ' ' ? ' ' : `<span class="letra" style="animation-delay:${retraso}ms" aria-hidden="true">${esc(c)}</span>`;
-      }).join('');
+        return `<span class="letra" style="animation-delay:${retraso}ms" aria-hidden="true">${esc(c)}</span>`;
+      }).join('')}</span>`).join(' ');
       retraso += 120;
     });
   }
@@ -232,6 +234,8 @@
     const p = estado.platos.get(id);
     if (!p) return;
     const img = $('#ficha-img');
+    // Las bebidas se dibujan de lado: no giran como los platos
+    $('.ficha__plato').classList.toggle('ficha__plato--quieto', SECCIONES_LISTA.includes(normal(p.seccion)));
     img.src = p.imagen || '';
     img.hidden = !p.imagen;
     $('#ficha-seccion').textContent = p.seccion;

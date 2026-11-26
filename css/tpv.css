@@ -260,6 +260,7 @@
 .punto--libre { background: var(--texto-3); }
 .punto--abierto { background: var(--pl-ocupada); }
 .punto--cerrado { background: var(--pl-cuenta); }
+.punto--reservada { background: var(--pl-reservada); }
 
 
 /* ===================================================================
@@ -409,7 +410,7 @@
 .linea__nombre { font-weight: 600; }
 .linea__nota { grid-column: 2; font-size: 12.5px; color: var(--oro-t); font-style: italic; }
 .linea__importe { font-weight: 600; text-align: right; }
-.linea__estado { grid-column: 2; display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--texto-3); text-transform: capitalize; }
+.linea__estado { grid-column: 2; display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--texto-3); }
 .linea__estado::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 .linea__estado--en-cocina { color: var(--oro-t); }
 .linea__estado--servido { color: var(--olivo-t); }
@@ -584,7 +585,7 @@
 }
 .dialogo--estrecho { width: min(400px, calc(100% - 32px)); }
 .dialogo[open] { animation: dialogo-entra 220ms var(--transicion); }
-.dialogo::backdrop { background: var(--velo); backdrop-filter: blur(4px); }
+.dialogo::backdrop { background: var(--velo); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
 @keyframes dialogo-entra { from { opacity: 0; transform: translateY(12px) scale(.98); } }
 .dialogo__cuerpo { display: grid; gap: 16px; padding: 24px; }
 .dialogo__cabecera { display: flex; justify-content: space-between; align-items: center; }
@@ -656,4 +657,274 @@
   .ticket { border: 0; background: #fff; color: #000; }
   .ticket * { color: #000 !important; }
   .linea__controles { display: none !important; }
+}
+
+/* ===================================================================
+   Reservas
+   =================================================================== */
+.reservas__cabecera { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 14px; }
+.reservas__cabecera h2 { font-size: 34px; font-weight: 500; }
+.reservas__aviso {
+  max-width: 900px;
+  margin-bottom: 22px;
+  padding: 12px 16px;
+  border-radius: var(--radio-sm);
+  background: rgba(255,255,255,.85);
+  border-left: 4px solid var(--oro-t);
+  font-size: 13.5px;
+  color: var(--texto-2);
+}
+.reservas__aviso strong { color: var(--texto); }
+
+.dia-reservas { max-width: 900px; margin-bottom: 26px; }
+.dia-reservas h3 { display: flex; align-items: baseline; gap: 12px; margin-bottom: 10px; font-size: 24px; font-weight: 500; }
+.dia-reservas h3 small { font-family: var(--sans); font-size: 13px; color: var(--texto-2); }
+
+.reserva {
+  display: grid;
+  grid-template-columns: 78px 1fr auto;
+  gap: 18px;
+  align-items: center;
+  margin-bottom: 10px;
+  padding: 16px 18px;
+  border: 1px solid var(--borde);
+  border-left: 5px solid var(--borde-2);
+  border-radius: var(--radio);
+  background: var(--panel);
+  animation: aparece-tpv 260ms var(--transicion) both;
+}
+.reserva--pendiente { border-left-color: var(--oro-t); }
+.reserva--confirmada { border-left-color: var(--olivo-t); }
+.reserva--rechazada, .reserva--cancelada { opacity: .6; }
+.reserva__hora { font-family: var(--serif); font-size: 30px; font-weight: 600; text-align: center; }
+.reserva__datos { display: grid; gap: 6px; min-width: 0; }
+.reserva__titulo { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.reserva__titulo strong { font-size: 16px; }
+.chip-r {
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--panel-3);
+  font-size: 12px;
+  font-weight: 600;
+}
+.chip-r { display: inline-block; }
+.chip-r--zona::first-letter { text-transform: uppercase; }
+#filtro-reservas button { text-transform: none; }
+.chip-r--mesa { background: rgba(19,132,95,.14); color: var(--olivo-t); }
+.etiqueta-reserva { margin-left: auto; padding: 2px 10px; border-radius: 999px; font-size: 11.5px; font-weight: 700; text-transform: capitalize; }
+.etiqueta-reserva--pendiente { background: rgba(176,116,0,.14); color: var(--oro-t); }
+.etiqueta-reserva--confirmada { background: rgba(19,132,95,.14); color: var(--olivo-t); }
+.etiqueta-reserva--rechazada, .etiqueta-reserva--cancelada { background: var(--panel-3); color: var(--texto-2); }
+.reserva__contacto { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13.5px; }
+.reserva__contacto a { color: var(--acento); font-weight: 600; text-decoration: none; user-select: text; }
+.reserva__contacto a:hover { text-decoration: underline; }
+.reserva__comentario { font-size: 13.5px; font-style: italic; color: var(--texto-2); }
+.reserva__meta { font-size: 12px; color: var(--texto-3); }
+.reserva__acciones { display: flex; gap: 8px; }
+.reserva__acciones .btn { min-height: 38px; }
+
+@media (max-width: 820px) {
+  .reserva { grid-template-columns: 1fr; gap: 10px; }
+  .reserva__hora { text-align: left; }
+  .etiqueta-reserva { margin-left: 0; }
+}
+
+/* No presentados y lista negra */
+.reserva--no_presentado { border-left-color: var(--peligro); opacity: .75; }
+.etiqueta-reserva--no_presentado { background: rgba(212,71,58,.12); color: var(--peligro); }
+.reserva--negra { border-left-color: var(--peligro); }
+.reserva--negra .reserva__hora { font-size: 28px; }
+.chip-r--error { background: rgba(212,71,58,.12); color: var(--peligro); }
+.chip-r--aviso { background: rgba(176,116,0,.14); color: var(--oro-t); }
+
+/* ===================================================================
+   Pases y marcha de comandas
+   =================================================================== */
+.globo--listo { background: var(--olivo-t); }
+
+.pase-cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 6px 22px 0;
+  padding: 8px 0 6px;
+  border-bottom: 1px solid var(--borde);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--texto-2);
+}
+.pase-cabecera small { font-weight: 600; letter-spacing: .04em; text-transform: none; color: var(--texto-3); }
+.pase-cabecera--espera small { color: var(--oro-t); }
+.mini--marchar { background: var(--olivo-t); border-color: var(--olivo-t); color: #fff; height: 30px; letter-spacing: 0; text-transform: none; }
+.mini--marchar:hover { background: var(--olivo-t); filter: brightness(1.1); }
+.mini--listo { height: 26px; margin-left: 6px; background: var(--olivo-t); border-color: var(--olivo-t); color: #fff; font-size: 12px; }
+
+.linea__estado--pendiente { color: var(--oro-t); }
+.linea__estado--marchado { color: var(--acento); }
+.linea__estado--listo { color: var(--olivo-t); font-weight: 800; }
+.linea--listo { background: rgba(19,132,95,.08); box-shadow: inset 4px 0 0 var(--olivo-t); animation: aviso-listo 1.6s ease-in-out 3; }
+@keyframes aviso-listo { 50% { background: rgba(19,132,95,.2); } }
+.linea--servido .linea__nombre { color: var(--texto-2); }
+
+/* Cocina */
+.comanda-cocina--espera { opacity: .6; }
+.comanda-cocina__pase {
+  margin: 0;
+  padding: 10px 16px 0;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--texto-3);
+}
+.item-cocina { grid-template-columns: 32px 1fr auto; }
+.item-cocina--marchado { background: rgba(11,111,184,.08); }
+.item-cocina--marchado .item-cocina__accion { background: var(--acento); color: #fff; }
+.item-cocina--en-cocina .item-cocina__accion { background: var(--oro-t); color: #fff; }
+.item-cocina--listo { opacity: .7; cursor: default; }
+.item-cocina--listo .item-cocina__accion { background: var(--olivo-t); color: #fff; }
+.item-cocina__tiempo { grid-column: 2; font-size: 11.5px; font-weight: 700; color: var(--olivo-t); }
+.item-cocina__tiempo.medio { color: var(--oro-t); }
+.item-cocina__tiempo.tarde { color: var(--peligro); }
+.comanda-cocina__espera {
+  margin: 4px 10px 10px;
+  padding: 10px 12px;
+  border-radius: var(--radio-sm);
+  border: 1px dashed var(--borde-2);
+  font-size: 12.5px;
+  color: var(--texto-2);
+  display: grid;
+  gap: 4px;
+}
+.comanda-cocina__espera p { font-size: 10.5px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--texto-3); }
+.comanda-cocina__espera em { font-style: normal; font-weight: 700; color: var(--texto); }
+
+/* ===================================================================
+   Caja: informe X, arqueo y cierre Z
+   =================================================================== */
+.caja__periodo { margin-top: 4px; color: var(--texto-2); font-size: 13.5px; }
+.caja__botones { display: flex; gap: 10px; flex-wrap: wrap; }
+.aviso-caja {
+  margin-bottom: 14px;
+  padding: 12px 16px;
+  border-radius: var(--radio-sm);
+  background: rgba(255,255,255,.88);
+  border-left: 4px solid var(--oro-t);
+  font-size: 13.5px;
+  color: var(--texto-2);
+}
+.aviso-caja strong { color: var(--texto); }
+.tarjeta__sub { margin-top: 22px; }
+
+.tarjeta--arqueo { grid-row: span 2; }
+.arqueo__cuentas, .arqueo__resultado { margin: 0; display: grid; gap: 6px; }
+.arqueo__cuentas div, .arqueo__resultado div { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; }
+.arqueo__cuentas dt, .arqueo__resultado dt { color: var(--texto-2); }
+.arqueo__cuentas dd, .arqueo__resultado dd { margin: 0; font-weight: 700; }
+.arqueo__esperado { padding-top: 8px; border-top: 1px solid var(--borde); font-size: 15px !important; }
+.arqueo__esperado dd { font-family: var(--serif); font-size: 22px; }
+.arqueo__ayuda { margin: 16px 0 10px; font-size: 12.5px; color: var(--texto-3); }
+.arqueo__monedas { display: grid; grid-template-columns: repeat(auto-fill, minmax(86px, 1fr)); gap: 6px; }
+.moneda {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px 4px 10px;
+  border: 1px solid var(--borde-2);
+  border-radius: 999px;
+  background: var(--panel-2);
+  font-size: 12.5px;
+  font-weight: 700;
+}
+.moneda--billete { background: #e9f6ee; }
+.moneda input { width: 100%; min-width: 0; height: 28px; border: 0; border-radius: 999px; background: #fff; text-align: center; font-weight: 700; }
+.moneda input:focus { outline: 2px solid var(--acento); }
+.arqueo__total { display: grid; gap: 6px; margin: 16px 0 12px; }
+.arqueo__total span { font-size: 11.5px; color: var(--texto-3); text-transform: uppercase; letter-spacing: .12em; font-weight: 700; }
+.arqueo__dif { padding: 10px 12px; border-radius: var(--radio-sm); font-size: 15px !important; }
+.arqueo__dif dd { font-family: var(--serif); font-size: 22px; }
+.arqueo__dif--cuadra { background: rgba(19,132,95,.12); }
+.arqueo__dif--cuadra dt, .arqueo__dif--cuadra dd { color: var(--olivo-t); }
+.arqueo__dif--falta { background: rgba(212,71,58,.1); }
+.arqueo__dif--falta dt, .arqueo__dif--falta dd { color: var(--peligro); }
+.arqueo__dif--sobra { background: rgba(176,116,0,.12); }
+.arqueo__dif--sobra dt, .arqueo__dif--sobra dd { color: var(--oro-t); }
+.texto-falta { color: var(--peligro); font-weight: 700; }
+.texto-sobra { color: var(--oro-t); font-weight: 700; }
+.fila-seccion td { padding-top: 16px; font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--texto-3); }
+
+/* Informe X / Z impreso en formato ticket */
+.informe-imprimir { display: none; }
+@media print {
+  body.imprimiendo-informe > *:not(#informe-imprimir) { display: none !important; }
+  body.imprimiendo-informe { background: #fff !important; height: auto; overflow: visible; }
+  body.imprimiendo-informe .informe-imprimir {
+    display: block;
+    width: 72mm;
+    margin: 0 auto;
+    color: #000;
+    font: 11px/1.45 'Courier New', monospace;
+  }
+  .informe-imprimir h1 { font: 700 18px/1.2 Georgia, serif; text-align: center; }
+  .informe-imprimir h2 { margin: 4px 0; font-size: 13px; text-align: center; }
+  .informe-imprimir h3 { margin: 10px 0 4px; font-size: 11px; text-transform: uppercase; border-bottom: 1px dashed #000; }
+  .informe-imprimir p { margin: 2px 0; text-align: center; }
+  .informe-imprimir hr { border: 0; border-top: 1px dashed #000; margin: 8px 0; }
+  .inf-fila { display: flex; justify-content: space-between; gap: 8px; }
+  .inf-fila--fuerte { font-weight: 700; font-size: 12px; }
+  .inf-firma { margin-top: 28px !important; text-align: left !important; }
+}
+
+/* ===================================================================
+   Móvil (≤ 600 px): la barra se reparte en dos filas y nada se sale
+   =================================================================== */
+@media (max-width: 600px) {
+  .barra { flex-wrap: wrap; height: auto; row-gap: 6px; padding: 8px 10px; }
+  .barra .marca-tpv { display: inline-flex; font-size: 20px; }
+  .barra__derecha { gap: 8px; }
+  .pestanas { order: 3; flex-basis: 100%; overflow-x: auto; scrollbar-width: none; }
+  .pestanas::-webkit-scrollbar { display: none; }
+  .pestanas button { flex: none; padding: 8px 12px; }
+  .barra__caja strong { font-size: 17px; }
+  .usuario { padding: 3px; }
+  .usuario svg { display: none; }
+  .sala__cabecera { gap: 10px; }
+  .sala__cabecera .segmentos { max-width: 100%; overflow-x: auto; }
+  .leyenda { flex-wrap: wrap; gap: 6px 14px; }
+  .kpi strong { font-size: 26px; }
+  .reservas__cabecera .segmentos, .caja__botones { max-width: 100%; overflow-x: auto; }
+  .caja__botones .btn { flex: 1; }
+  .ticket__total strong { font-size: 30px; }
+}
+/* En tableta y móvil el plano se coloca arriba, sin hueco encima */
+.plano-envoltura { align-items: flex-start; }
+/* La comanda no debe crecer más que la pantalla (un elemento de rejilla no encoge por defecto) */
+.vista-pedido { grid-template-columns: minmax(0, 1fr) 400px; }
+.comanda, .ticket { min-width: 0; }
+@media (max-width: 820px) {
+  .vista-pedido { grid-template-columns: minmax(0, 1fr); }
+  .botonera { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+}
+
+/* Pantallas táctiles: botones pequeños con área cómoda para el dedo (≈ 44 px) */
+@media (pointer: coarse) {
+  .mini { min-height: 42px; min-width: 42px; }
+  .generos button, .segmentos button, .pestanas button { min-height: 42px; }
+  .moneda input { height: 36px; }
+}
+
+/* Pantallas bajas (portátiles pequeños): el ticket deja más sitio a las líneas */
+@media (max-height: 680px) and (min-width: 821px) {
+  .ticket__cabecera { padding: 12px 22px 10px; }
+  .ticket__mesa { font-size: 26px; }
+  .ticket__pie { padding: 10px 22px 12px; }
+  .ticket__total { margin-bottom: 8px; }
+  .ticket__total strong { font-size: 28px; }
+  .ticket__acciones { gap: 6px; }
+  .ticket__acciones .btn { min-height: 38px; }
+  .ticket__secundarias { margin-top: 0; }
 }

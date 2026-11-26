@@ -272,7 +272,9 @@ function listar_mesas(): array
 {
     $p = [];
     $sql = "SELECT m.*, pe.id AS pedido_id, pe.estado AS pedido_estado, pe.total AS pedido_total,
-                   pe.fecha AS pedido_fecha, CONCAT(pr.nombre, ' ', pr.apellidos) AS pedido_personal
+                   pe.fecha AS pedido_fecha, CONCAT(pr.nombre, ' ', pr.apellidos) AS pedido_personal,
+                   (SELECT COALESCE(SUM(l.cantidad), 0) FROM linea_pedido l
+                     WHERE l.id_pedido = pe.id AND l.estado = 'listo') AS pedido_listos
               FROM mesas m
               LEFT JOIN pedidos pe ON pe.id_mesa = m.id AND pe.estado IN ('abierto', 'cerrado')
               LEFT JOIN personal pr ON pr.id = pe.id_personal";
@@ -282,16 +284,27 @@ function listar_mesas(): array
     }
     $sql .= ' ORDER BY m.salon, m.id';
 
-    return array_map(function ($f) {
+    // Próxima reserva confirmada de hoy en cada mesa (las que empezaron hace más de 2 h ya no cuentan)
+    $reservas = [];
+    foreach (todos("SELECT id, id_mesa, TIME_FORMAT(hora, '%H:%i') AS hora, nombre, comensales FROM reservas
+                     WHERE fecha = CURDATE() AND estado = 'confirmada' AND id_mesa IS NOT NULL
+                       AND hora >= CURTIME() - INTERVAL 2 HOUR
+                     ORDER BY hora") as $r) {
+        $reservas[$r['id_mesa']] ??= ['id' => $r['id'], 'hora' => $r['hora'], 'nombre' => $r['nombre'], 'comensales' => $r['comensales']];
+    }
+
+    return array_map(function ($f) use ($reservas) {
         $pedido = $f['pedido_id'] ? [
             'id'       => $f['pedido_id'],
             'estado'   => $f['pedido_estado'],
             'total'    => $f['pedido_total'],
             'fecha'    => $f['pedido_fecha'],
             'personal' => $f['pedido_personal'],
+            'listos'   => (int) $f['pedido_listos'],
         ] : null;
         return ['id' => $f['id'], 'nombre' => $f['nombre'], 'comensales' => $f['comensales'],
-                'salon' => $f['salon'], 'pos_x' => $f['pos_x'], 'pos_y' => $f['pos_y'], 'pedido' => $pedido];
+                'salon' => $f['salon'], 'pos_x' => $f['pos_x'], 'pos_y' => $f['pos_y'], 'pedido' => $pedido,
+                'reserva' => $reservas[$f['id']] ?? null];
     }, todos($sql, $p));
 }
 

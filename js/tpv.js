@@ -15,9 +15,10 @@
     'jefe de cocina': '#55623f', 'cocinero': '#6f7f4f', 'fregantin': '#5b6466',
   };
   const TONOS = ['#8f9b68', '#c47a52', '#c09a4c', '#5b8fae', '#b0706a', '#7a8a62', '#8e7397', '#a8875a'];
-  const GENEROS_BEBIDA = ['bebidas', 'vinos', 'cervezas'];
+  const NOMBRE_PASE = ['Bebidas', '1er pase', '2º pase', '3er pase', 'Postres'];
+  const ESTADO_LINEA_TXT = { pendiente: 'En espera', marchado: 'Marchado a cocina', 'en cocina': 'En cocina', listo: '¡Listo para servir!', servido: 'Servido' };
   const NOTAS_RAPIDAS = ['Sin sal', 'Sin gluten', 'Sin cebolla', 'Poco hecho', 'Al punto', 'Muy hecho', 'Para compartir', 'Sacar después'];
-  const REFRESCO_MS = 12000;
+  const REFRESCO_MS = 8000;   // cocina y sala se avisan entre sí: refresco ágil
 
   const E = {
     usuario: null,
@@ -148,6 +149,7 @@
     $('#usuario-nombre').textContent = `${u.nombre} ${u.apellidos.split(' ')[0]}`;
     $('#usuario-rango').textContent = rangoTexto(u.rango);
     salirEdicion();
+    $('#tab-reservas').classList.toggle('oculto', !puedeVerReservas());
 
     const [generos, platos] = await Promise.all([intentar(() => api.get('generos')), intentar(() => api.get('platos'))]);
     E.generos = generos || [];
@@ -174,12 +176,13 @@
     if (vista !== 'pedido') E.pedido = null;
     $$('#pestanas [data-vista]').forEach((b) =>
       b.setAttribute('aria-selected', String(b.dataset.vista === vista || (vista === 'pedido' && b.dataset.vista === 'sala'))));
-    for (const v of ['sala', 'pedido', 'cocina', 'caja']) {
+    for (const v of ['sala', 'pedido', 'cocina', 'caja', 'reservas']) {
       $(`#vista-${v}`).classList.toggle('oculto', v !== vista);
     }
     if (vista === 'sala') cargarMesas();
     if (vista === 'cocina') cargarCocina();
     if (vista === 'caja') cargarCaja();
+    if (vista === 'reservas') cargarReservas();
   }
 
   /* ==================================================================
@@ -206,7 +209,8 @@
 
   function pintarMesas() {
     const mesas = mesasVisibles();
-    $('#n-libres').textContent = mesas.filter((m) => !m.pedido).length;
+    $('#n-libres').textContent = mesas.filter((m) => !m.pedido && !m.reserva).length;
+    $('#n-reservadas').textContent = mesas.filter((m) => !m.pedido && m.reserva).length;
     $('#n-ocupadas').textContent = mesas.filter((m) => m.pedido?.estado === 'abierto').length;
     $('#n-cuenta').textContent = mesas.filter((m) => m.pedido?.estado === 'cerrado').length;
     const plazas = mesas.reduce((s, m) => s + m.comensales, 0);
@@ -345,12 +349,23 @@
     if (!arrastre || e.pointerId !== arrastre.id) return;
     arrastre = null;
     pintarMesas();
+    // El «click» del mismo gesto llega justo después del «pointerup»: pasado ese
+    // instante la marca se borra, para no ignorar el siguiente toque del usuario
+    setTimeout(() => { ignorarClick = false; }, 0);
   }
 
 
   async function abrirMesa(idMesa) {
     const m = E.mesas.find((x) => x.id === idMesa);
     if (!m) return;
+    // Mesa libre pero reservada hoy: se avisa (se puede abrir: es lo que se hace cuando llega el cliente)
+    if (!m.pedido && m.reserva) {
+      const r = m.reserva;
+      const ok = await confirmar(`${m.nombre} está reservada`,
+        `Reserva a las ${r.hora} para ${r.nombre} (${r.comensales} ${r.comensales === 1 ? 'persona' : 'personas'}). ` +
+        'Ábrela solo si son ellos o si la mesa quedará libre antes de esa hora.', 'Abrir la mesa');
+      if (!ok) return;
+    }
     if (m.pedido) {
       const pedido = await intentar(() => api.get(`pedidos/${m.pedido.id}`));
       if (!pedido) return;
@@ -435,31 +450,55 @@
       ${p.id ? `Nº ${p.id} · ${horaDe(p.fecha)}<br>` : ''}${esc(p.personal.split(' ')[0])}`;
 
     const editable = p.estado === 'abierto' || p.estado === 'nuevo';
-    $('#lineas').innerHTML = p.lineas.length ? p.lineas.map((l) => `
-      <li class="linea ${l.id === E.lineaSel ? 'seleccionada' : ''}" data-id="${l.id}">
+    const activo = p.estado === 'abierto' || p.estado === 'cerrado';
+
+    // Platos agrupados por pase: bebidas, 1er pase, 2º, 3º y postres
+    const pases = [...new Set(p.lineas.map((l) => l.pase))].sort((a, b) => a - b);
+    const linea = (l) => {
+      const estado = l.pase === 0 && l.estado === 'pendiente' ? 'Por servir' : ESTADO_LINEA_TXT[l.estado];
+      return `
+      <li class="linea linea--${l.estado.replace(' ', '-')} ${l.id === E.lineaSel ? 'seleccionada' : ''}" data-id="${l.id}">
         <span class="linea__cant num">${l.cantidad}×</span>
         <span class="linea__nombre">${esc(l.plato)}</span>
         <span class="linea__importe num">${euros(l.subtotal)}</span>
         ${l.notas ? `<span class="linea__nota">${esc(l.notas)}</span>` : ''}
-        <span class="linea__estado linea__estado--${l.estado.replace(' ', '-')}">${esc(l.estado)}</span>
+        <span class="linea__estado linea__estado--${l.estado.replace(' ', '-')}">${esc(estado)}
+          ${l.estado === 'listo' && activo ? '<button class="mini mini--listo" data-acc="servido">Servir ✓</button>' : ''}</span>
         <div class="linea__controles">
           <button class="mini" data-acc="menos" ${!editable || l.cantidad < 2 ? 'disabled' : ''} aria-label="Uno menos">−</button>
           <button class="mini" data-acc="mas" ${!editable ? 'disabled' : ''} aria-label="Uno más">+</button>
           <button class="mini" data-acc="nota" ${!editable ? 'disabled' : ''}>Nota</button>
+          ${l.pase > 0 && l.estado === 'pendiente' && editable ? `<button class="mini" data-acc="pase" title="Cambiar de pase">Pase ${l.pase} ⟳</button>` : ''}
           ${l.estado !== 'servido' ? '<button class="mini" data-acc="servido">Servido</button>' : ''}
           <button class="mini mini--peligro" data-acc="quitar" ${!editable ? 'disabled' : ''}>Quitar</button>
         </div>
-      </li>`).join('')
+      </li>`;
+    };
+    $('#lineas').innerHTML = p.lineas.length ? pases.map((n) => {
+      const ls = p.lineas.filter((l) => l.pase === n);
+      const enEspera = ls.filter((l) => l.estado === 'pendiente').length;
+      const listos = ls.filter((l) => l.estado === 'listo').length;
+      const resumen = n === 0 ? '' : enEspera ? `${enEspera} en espera` : listos ? `${listos} listo${listos > 1 ? 's' : ''}`
+        : ls.every((l) => l.estado === 'servido') ? 'servido' : 'en marcha';
+      return `
+        <li class="pase-cabecera ${enEspera && n > 0 ? 'pase-cabecera--espera' : ''}">
+          <span>${NOMBRE_PASE[n] || `Pase ${n}`}${resumen ? ` · <small>${resumen}</small>` : ''}</span>
+          ${n > 0 && enEspera && activo && p.id ? `<button class="mini mini--marchar" data-marchar="${n}">Marchar ▶</button>` : ''}
+        </li>${ls.map(linea).join('')}`;
+    }).join('')
       : `<li class="ticket__vacio"><div><p>Mesa sin consumiciones</p>Toca un plato para empezar el pedido</div></li>`;
 
     $('#ticket-total').textContent = euros(p.total);
 
     const vacio = !p.lineas.length;
+    const siguiente = Math.min(...p.lineas.filter((l) => l.pase > 0 && l.estado === 'pendiente').map((l) => l.pase));
     const acc = $('#ticket-acciones');
     if (p.estado === 'nuevo') {
       acc.innerHTML = '<button class="btn btn--acento ancho" disabled>Cobrar</button>';
     } else {
       acc.innerHTML = `
+        ${Number.isFinite(siguiente) && activo
+          ? `<button class="btn btn--olivo ancho" data-acc="marchar">Marchar ${NOMBRE_PASE[siguiente].toLowerCase()} a cocina ▶</button>` : ''}
         ${p.estado === 'abierto'
           ? `<button class="btn btn--fantasma" data-acc="cuenta" ${vacio ? 'disabled' : ''}>Pedir cuenta</button>`
           : '<button class="btn btn--fantasma" data-acc="reabrir">Reabrir</button>'}
@@ -470,6 +509,18 @@
           <button class="enlace enlace--peligro" data-acc="anular">${vacio ? 'Liberar mesa' : 'Anular'}</button>
         </div>`;
     }
+  }
+
+  /** Marcha a cocina un pase (o el siguiente con platos en espera). */
+  function marcharPase(pase) {
+    const p = E.pedido;
+    if (!p?.id) return;
+    enCola(() => intentar(() => api.post(`pedidos/${p.id}/marchar`, pase ? { pase } : {})).then((r) => {
+      if (!r || E.pedido !== p) return;
+      Object.assign(p, r);
+      pintarTicket();
+      avisar(`${r.marchado.nombre} marchado a cocina · ${r.marchado.platos} ${r.marchado.platos === 1 ? 'plato' : 'platos'}`);
+    }));
   }
 
   async function accionLinea(acc, idLinea) {
@@ -483,6 +534,8 @@
       enCola(() => intentar(() => api.patch(`lineas/${l.id}`, { cantidad })).then(actualizar));
     } else if (acc === 'servido') {
       enCola(() => intentar(() => api.patch(`lineas/${l.id}`, { estado: 'servido' })).then(actualizar));
+    } else if (acc === 'pase') {
+      enCola(() => intentar(() => api.patch(`lineas/${l.id}`, { pase: (l.pase % 4) + 1 })).then(actualizar));
     } else if (acc === 'quitar') {
       enCola(() => intentar(() => api.borrar(`lineas/${l.id}`)).then((r) => { E.lineaSel = null; actualizar(r); }));
     } else if (acc === 'nota') {
@@ -497,7 +550,9 @@
     if (!p?.id) return;
     const cambiar = (datos) => intentar(() => api.patch(`pedidos/${p.id}`, datos));
 
-    if (acc === 'cuenta' || acc === 'reabrir') {
+    if (acc === 'marchar') {
+      marcharPase();
+    } else if (acc === 'cuenta' || acc === 'reabrir') {
       const r = await cambiar({ estado: acc === 'cuenta' ? 'cerrado' : 'abierto' });
       if (r) { Object.assign(p, r); pintarTicket(); avisar(acc === 'cuenta' ? 'Cuenta pedida' : 'Mesa reabierta'); }
     } else if (acc === 'cobrar') {
@@ -607,13 +662,8 @@
   /* ==================================================================
      Cocina
      ================================================================== */
-  function idsBebida() {
-    return E.generos.filter((g) => GENEROS_BEBIDA.includes(normal(g.nombre))).map((g) => g.id);
-  }
-
   async function pedirCocina() {
-    const excluir = $('#ver-bebidas').checked ? '' : `?excluir_generos=${idsBebida().join(',')}`;
-    return api.get(`cocina${excluir}`);
+    return api.get('cocina');   // las bebidas (pase 0) no llegan a cocina
   }
 
   async function cargarCocina() {
@@ -621,93 +671,277 @@
     if (!lineas) return;
     actualizarGlobo(lineas);
     if (E.vista !== 'cocina') return;
+    const verEspera = $('#ver-espera').checked;
 
+    // Una comanda por pedido; primero las que llevan más tiempo marchadas
     const comandas = new Map();
     for (const l of lineas) {
-      if (!comandas.has(l.id_pedido)) comandas.set(l.id_pedido, { mesa: l.mesa, fecha: l.fecha, lineas: [] });
+      if (!comandas.has(l.id_pedido)) comandas.set(l.id_pedido, { id: l.id_pedido, mesa: l.mesa, camarero: l.camarero, lineas: [] });
       comandas.get(l.id_pedido).lineas.push(l);
     }
-    $('#cocina').innerHTML = [...comandas.entries()].map(([id, c], i) => {
-      const min = minutosDesde(c.fecha);
+    const marcha = (c) => c.lineas.filter((l) => !['pendiente', 'listo'].includes(l.estado)).map((l) => l.marchada || l.fecha).sort()[0];
+    const lista = [...comandas.values()]
+      .filter((c) => verEspera || c.lineas.some((l) => l.estado !== 'pendiente'))
+      .sort((a, b) => (marcha(a) || '9') < (marcha(b) || '9') ? -1 : 1);
+
+    const item = (l) => {
+      const accion = { marchado: 'Empezar', 'en cocina': 'Listo ✓', listo: 'En el pase' }[l.estado];
+      const min = minutosDesde(l.marchada || l.fecha);
       return `
-        <article class="comanda-cocina" style="animation-delay:${Math.min(i, 10) * 30}ms">
+        <li><button class="item-cocina item-cocina--${l.estado.replace(' ', '-')}" data-id="${l.id}" data-estado="${l.estado}"
+                    ${l.estado === 'listo' ? 'disabled' : ''}>
+          <b class="num">${l.cantidad}</b>
+          <span class="item-cocina__plato">${esc(l.plato)}</span>
+          <span class="item-cocina__accion">${accion}</span>
+          ${l.notas ? `<span class="item-cocina__nota">${esc(l.notas)}</span>` : ''}
+          ${l.estado !== 'listo' ? `<span class="item-cocina__tiempo num ${min >= 20 ? 'tarde' : min >= 10 ? 'medio' : ''}">${min} min</span>` : ''}
+        </button></li>`;
+    };
+
+    $('#cocina').innerHTML = lista.map((c, i) => {
+      const activas = c.lineas.filter((l) => l.estado !== 'pendiente');
+      const espera = c.lineas.filter((l) => l.estado === 'pendiente');
+      const pases = [...new Set(activas.map((l) => l.pase))].sort();
+      const min = marcha(c) ? minutosDesde(marcha(c)) : null;
+      return `
+        <article class="comanda-cocina ${activas.length ? '' : 'comanda-cocina--espera'}" style="animation-delay:${Math.min(i, 10) * 30}ms">
           <header class="comanda-cocina__cabecera">
             <strong>${esc(c.mesa)}</strong>
-            <span class="comanda-cocina__tiempo num ${min >= 25 ? 'tarde' : min >= 12 ? 'medio' : ''}">${min} min · nº ${id}</span>
+            <span class="comanda-cocina__tiempo num ${min >= 25 ? 'tarde' : min >= 12 ? 'medio' : ''}">
+              ${min !== null ? `${min} min · ` : 'Sin marchar · '}${esc(c.camarero.split(' ')[0])}</span>
           </header>
-          <ul>${c.lineas.map((l) => `
-            <li><button class="item-cocina item-cocina--${l.estado.replace(' ', '-')}" data-id="${l.id}" data-estado="${l.estado}">
-              <b class="num">${l.cantidad}</b>
-              <span class="item-cocina__plato">${esc(l.plato)}</span>
-              <span class="item-cocina__accion">${l.estado === 'pendiente' ? 'Empezar' : 'Listo ✓'}</span>
-              ${l.notas ? `<span class="item-cocina__nota">${esc(l.notas)}</span>` : ''}
-            </button></li>`).join('')}
-          </ul>
+          ${pases.map((n) => `
+            <p class="comanda-cocina__pase">${NOMBRE_PASE[n]}</p>
+            <ul>${activas.filter((l) => l.pase === n).map(item).join('')}</ul>`).join('')}
+          ${espera.length && verEspera ? `
+            <div class="comanda-cocina__espera">
+              <p>En espera (aún no marchado)</p>
+              ${[...new Set(espera.map((l) => l.pase))].sort().map((n) => `
+                <span><em>${NOMBRE_PASE[n]}:</em> ${espera.filter((l) => l.pase === n).map((l) => `${l.cantidad}× ${esc(l.plato)}`).join(', ')}</span>`).join('')}
+            </div>` : ''}
         </article>`;
-    }).join('') || '<p class="vacio-tpv">No hay comandas pendientes</p>';
+    }).join('') || '<p class="vacio-tpv">No hay comandas en marcha</p>';
   }
 
   function actualizarGlobo(lineas) {
-    const n = lineas.filter((l) => l.estado === 'pendiente').length;
+    // Platos marchados que la cocina aún no ha empezado
+    const n = lineas.filter((l) => l.estado === 'marchado').length;
     $('#globo-cocina').textContent = n;
     $('#globo-cocina').classList.toggle('oculto', !n);
   }
 
   async function avanzarCocina(boton) {
-    const siguiente = boton.dataset.estado === 'pendiente' ? 'en cocina' : 'servido';
+    const siguiente = { marchado: 'en cocina', 'en cocina': 'listo' }[boton.dataset.estado];
+    if (!siguiente) return;
     boton.disabled = true;
     const r = await intentar(() => api.patch(`lineas/${boton.dataset.id}`, { estado: siguiente }));
     if (r) cargarCocina(); else boton.disabled = false;
   }
 
+  /* --- Avisos a sala: platos listos para servir ----------------------- */
+  let listosVistos = null;
+
+  async function revisarListos() {
+    if (!E.usuario || GRUPOS.cocina.includes(E.usuario.rango)) return;
+    let listos;
+    try { listos = await api.get('cocina/listos'); } catch { return; }
+    const total = listos.reduce((s, l) => s + l.cantidad, 0);
+    $('#globo-sala').textContent = total;
+    $('#globo-sala').classList.toggle('oculto', !total);
+
+    if (listosVistos) {
+      const nuevos = listos.filter((l) => !listosVistos.has(l.id));
+      const porMesa = new Map();
+      for (const l of nuevos) {
+        if (!porMesa.has(l.mesa)) porMesa.set(l.mesa, []);
+        porMesa.get(l.mesa).push(`${l.cantidad}× ${l.plato}`);
+      }
+      for (const [mesa, platos] of porMesa) avisar(`🔔 ${mesa}: listo para servir · ${platos.join(', ')}`);
+      if (nuevos.length && E.vista === 'sala') cargarMesas();
+      if (nuevos.length && E.vista === 'pedido' && E.pedido?.id && nuevos.some((l) => l.id_pedido === E.pedido.id)) {
+        const p = E.pedido;
+        enCola(() => api.get(`pedidos/${p.id}`).then((r) => { if (E.pedido === p) { Object.assign(p, r); pintarTicket(); } }).catch(() => {}));
+      }
+    }
+    listosVistos = new Set(listos.map((l) => l.id));
+  }
+
   /* ==================================================================
      Caja
      ================================================================== */
-  const hoyISO = () => {
-    const d = new Date();
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-  };
+  /* --- Cierre de caja: informe X (comprobar) y Z (cerrar el día) ------- */
+  const DENOMINACIONES = [500, 200, 100, 50, 20, 10, 5, 2, 1, 0.5, 0.2, 0.1, 0.05, 0.02, 0.01];
+  const puedeCerrarCaja = () => ['admin', 'gerente', 'jefe de sala'].includes(E.usuario?.rango);
+  let informeX = null;
+  let conteo = {};   // denominación → unidades contadas (se conserva al refrescar)
+
+  const fechaHora = (f) => (f ? new Date(String(f).replace(' ', 'T')).toLocaleString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '—');
+  const formaPago = (t) => t.charAt(0).toUpperCase() + t.slice(1);
 
   async function cargarCaja() {
-    const fecha = $('#caja-fecha').value || hoyISO();
-    $('#caja-fecha').value = fecha;
-    const [r, pedidos] = await Promise.all([
-      intentar(() => api.get(`resumen?fecha=${fecha}`)),
-      intentar(() => api.get(`pedidos?desde=${fecha}&hasta=${fecha}&limite=200`)),
-    ]);
-    if (!r || !pedidos) return;
+    const x = await intentar(() => api.get('caja/x'));
+    if (!x) return;
+    informeX = x;
+
+    $('#caja-periodo').textContent = x.ultimo_cierre
+      ? `Ventas desde el cierre Z nº ${x.ultimo_cierre.numero} (${fechaHora(x.ultimo_cierre.hasta)})`
+      : 'Ventas desde el inicio (aún no se ha hecho ningún cierre Z)';
+    $('#btn-cierre-z').classList.toggle('oculto', !puedeCerrarCaja());
+    $('#tarjeta-cierres').classList.toggle('oculto', !puedeCerrarCaja());
+
+    const abiertas = x.mesas_abiertas;
+    $('#aviso-mesas').classList.toggle('oculto', !abiertas.length);
+    $('#aviso-mesas').innerHTML = abiertas.length
+      ? `<strong>${abiertas.length} ${abiertas.length === 1 ? 'mesa abierta' : 'mesas abiertas'}</strong> (${abiertas.map((m) => `${esc(m.mesa)} ${euros(m.total)}`).join(' · ')}). `
+        + 'Se pueden consultar en la X, pero hay que cobrarlas o anularlas antes de la Z.'
+      : '';
 
     $('#kpis').innerHTML = [
-      ['Ventas cobradas', euros(r.ventas), true],
-      ['Pedidos cobrados', r.pedidos],
-      ['Ticket medio', euros(r.ticket_medio)],
-      ['En curso ahora', `${euros(r.en_curso)}`],
+      ['Ventas del periodo', euros(x.total), true],
+      ['Tickets cobrados', x.tickets],
+      ['Ticket medio', euros(x.ticket_medio)],
+      ['Productos vendidos', `${x.unidades} uds.`],
     ].map(([t, v, d]) => `<div class="kpi ${d ? 'kpi--destacado' : ''}"><span>${t}</span><strong class="num">${v}</strong></div>`).join('');
 
-    $('#ranking').innerHTML = r.mas_vendidos.map((p) =>
-      `<li><span>${esc(p.nombre)}<small class="num">${p.unidades_vendidas} uds.</small></span><span class="num">${euros(p.importe)}</span></li>`
-    ).join('') || '<li class="sin-datos">Todavía no hay ventas</li>';
-
-    const max = Math.max(...r.por_tipo_pago.map((t) => t.importe), 1);
-    $('#formas-pago').innerHTML = r.por_tipo_pago.map((t) => `
+    const max = Math.max(...x.formas_pago.map((t) => t.importe), 1);
+    $('#formas-pago').innerHTML = x.formas_pago.map((t) => `
       <div class="barra-pago">
-        <div class="barra-pago__fila"><span>${esc(t.tipo_pago)} <small class="sin-datos">· ${t.pedidos}</small></span><strong class="num">${euros(t.importe)}</strong></div>
+        <div class="barra-pago__fila"><span>${esc(formaPago(t.tipo_pago))} <small class="sin-datos">· ${t.tickets} tickets</small></span><strong class="num">${euros(t.importe)}</strong></div>
         <div class="barra-pago__pista"><i style="width:${(t.importe / max) * 100}%"></i></div>
       </div>`).join('') || '<p class="sin-datos">Todavía no hay cobros</p>';
 
-    $('#tabla-pedidos').innerHTML = pedidos.length ? `
-      <thead><tr><th>Nº</th><th>Hora</th><th>Mesa</th><th>Atendido por</th><th>Estado</th><th>Pago</th><th class="der">Total</th></tr></thead>
-      <tbody>${pedidos.map((p) => `
-        <tr>
-          <td class="num">${p.id}</td>
-          <td class="num">${horaDe(p.fecha)}</td>
-          <td>${esc(p.mesa)}</td>
-          <td>${esc(p.personal)}</td>
-          <td><span class="etiqueta-estado etiqueta-estado--${p.estado}">${esc(p.estado)}</span></td>
-          <td style="text-transform:capitalize">${esc(p.tipo_pago || '—')}</td>
-          <td class="der num">${euros(p.total)}</td>
-        </tr>`).join('')}</tbody>`
-      : '<tbody><tr><td class="sin-datos">No hay pedidos este día</td></tr></tbody>';
+    $('#caja-anulados').innerHTML = x.anulados.length
+      ? `<p class="num"><strong>${x.anulados.length}</strong> ${x.anulados.length === 1 ? 'pedido anulado' : 'pedidos anulados'} con consumiciones · <strong>${euros(x.anulados_importe)}</strong></p>
+         <p class="sin-datos">${x.anulados.map((a) => `${esc(a.mesa)} (${esc(a.camarero.split(' ')[0])}) ${euros(a.total)}`).join(' · ')}</p>`
+      : '<p class="sin-datos">Ninguna</p>';
+
+    $('#tabla-camareros').innerHTML = x.camareros.length ? `
+      <thead><tr><th>Camarero</th><th class="der">Tickets</th><th class="der">Efectivo</th><th class="der">Total</th><th class="der">% ventas</th></tr></thead>
+      <tbody>${x.camareros.map((c) => `
+        <tr><td>${esc(c.camarero)}</td><td class="der num">${c.tickets}</td><td class="der num">${euros(c.efectivo)}</td>
+            <td class="der num"><strong>${euros(c.total)}</strong></td><td class="der num">${x.total ? Math.round((c.total / x.total) * 100) : 0} %</td></tr>`).join('')}
+      </tbody>` : '<tbody><tr><td class="sin-datos">Sin ventas en este periodo</td></tr></tbody>';
+
+    let seccion = null;
+    $('#tabla-productos').innerHTML = x.productos.length ? `
+      <thead><tr><th>Producto</th><th class="der">Uds.</th><th class="der">Importe</th></tr></thead>
+      <tbody>${x.productos.map((p) => {
+        const cab = p.seccion !== seccion ? `<tr class="fila-seccion"><td colspan="3">${esc(p.seccion)}</td></tr>` : '';
+        seccion = p.seccion;
+        return `${cab}<tr><td>${esc(p.producto)}</td><td class="der num">${p.unidades}</td><td class="der num">${euros(p.importe)}</td></tr>`;
+      }).join('')}</tbody>` : '<tbody><tr><td class="sin-datos">Sin productos vendidos</td></tr></tbody>';
+
+    pintarArqueo();
+    if (puedeCerrarCaja()) cargarCierres();
+  }
+
+  function pintarArqueo() {
+    const x = informeX;
+    if (!x) return;
+    $('#arqueo-cuentas').innerHTML = `
+      <div><dt>Fondo de caja</dt><dd class="num">${euros(x.fondo)}</dd></div>
+      <div><dt>+ Cobros en efectivo</dt><dd class="num">${euros(x.efectivo)}</dd></div>
+      <div class="arqueo__esperado"><dt>= Debe haber en el cajón</dt><dd class="num">${euros(x.efectivo_esperado)}</dd></div>`;
+    if (!$('#arqueo-monedas').children.length) {
+      $('#arqueo-monedas').innerHTML = DENOMINACIONES.map((v) => `
+        <label class="moneda ${v >= 5 ? 'moneda--billete' : ''}">
+          <span class="num">${v >= 1 ? `${v} €` : `${Math.round(v * 100)} c`}</span>
+          <input type="number" min="0" step="1" inputmode="numeric" data-valor="${v}" value="${conteo[v] || ''}" placeholder="0">
+        </label>`).join('');
+    }
+    actualizarArqueo();
+  }
+
+  const contadoActual = () => {
+    const v = parseFloat(String($('#arqueo-contado').value).replace(',', '.'));
+    return Number.isNaN(v) ? null : Math.round(v * 100) / 100;
+  };
+
+  function actualizarArqueo() {
+    const x = informeX;
+    const contado = contadoActual();
+    const r = $('#arqueo-resultado');
+    if (contado === null) {
+      r.innerHTML = '<div><dt>Descuadre</dt><dd class="sin-datos">Cuenta el efectivo para comprobarlo</dd></div>';
+      return;
+    }
+    const dif = Math.round((contado - x.efectivo_esperado) * 100) / 100;
+    const estado = Math.abs(dif) < 0.005 ? 'cuadra' : dif > 0 ? 'sobra' : 'falta';
+    r.innerHTML = `
+      <div class="arqueo__dif arqueo__dif--${estado}"><dt>${{ cuadra: 'La caja cuadra', sobra: 'Sobra', falta: 'Falta' }[estado]}</dt>
+        <dd class="num">${estado === 'cuadra' ? '✓' : euros(Math.abs(dif))}</dd></div>
+      <div><dt>Retirar del cajón (deja ${euros(x.fondo)} de cambio)</dt><dd class="num">${euros(Math.max(0, contado - x.fondo))}</dd></div>`;
+  }
+
+  async function cargarCierres() {
+    const lista = await intentar(() => api.get('caja/cierres'));
+    if (!lista) return;
+    $('#tabla-cierres').innerHTML = lista.length ? `
+      <thead><tr><th>Z</th><th>Cerrada</th><th>Por</th><th class="der">Tickets</th><th class="der">Total</th><th class="der">Descuadre</th><th></th></tr></thead>
+      <tbody>${lista.map((c) => `
+        <tr><td class="num"><strong>nº ${c.numero}</strong></td><td>${fechaHora(c.hasta)}</td><td>${esc(c.personal.split(' ')[0])}</td>
+            <td class="der num">${c.tickets}</td><td class="der num">${euros(c.total)}</td>
+            <td class="der num ${c.descuadre ? (c.descuadre < 0 ? 'texto-falta' : 'texto-sobra') : ''}">${c.descuadre === null ? 'sin arqueo' : euros(c.descuadre)}</td>
+            <td class="der"><button class="mini" data-cierre="${c.id}">Reimprimir</button></td></tr>`).join('')}
+      </tbody>` : '<tbody><tr><td class="sin-datos">Aún no hay cierres Z</td></tr></tbody>';
+  }
+
+  async function cierreZ() {
+    const x = informeX;
+    if (!x) return;
+    if (x.mesas_abiertas.length) {
+      avisar(`Hay ${x.mesas_abiertas.length} mesas abiertas: cóbralas o anúlalas antes de la Z`, 'error');
+      return;
+    }
+    const contado = contadoActual();
+    const dif = contado === null ? null : Math.round((contado - x.efectivo_esperado) * 100) / 100;
+    const texto = `Ventas ${euros(x.total)} en ${x.tickets} tickets · efectivo esperado ${euros(x.efectivo_esperado)}. `
+      + (contado === null ? 'No has contado el efectivo: la Z quedará sin arqueo. '
+        : `Contado ${euros(contado)}${dif ? ` (${dif < 0 ? 'falta' : 'sobra'} ${euros(Math.abs(dif))})` : ' (cuadra)'}. `)
+      + 'Las ventas quedarán cerradas y la caja volverá a 0 para el siguiente servicio. No se puede deshacer.';
+    if (!(await confirmar('¿Hacer el cierre Z?', texto, 'Cerrar caja'))) return;
+
+    const z = await intentar(() => api.post('caja/z', contado === null ? {} : { efectivo_contado: contado }));
+    if (!z) return;
+    avisar(`Cierre Z nº ${z.numero} hecho · ${euros(z.total)}${z.retirar !== null ? ` · retira ${euros(z.retirar)}` : ''}`);
+    conteo = {};
+    $('#arqueo-contado').value = '';
+    $('#arqueo-monedas').innerHTML = '';
+    imprimirInforme(z);
+    cargarCaja();
+  }
+
+  /* --- Informe en formato ticket para imprimir ----------------------- */
+  function imprimirInforme(inf) {
+    const fila = (a, b, fuerte) => `<div class="inf-fila ${fuerte ? 'inf-fila--fuerte' : ''}"><span>${a}</span><span>${b}</span></div>`;
+    const contado = inf.tipo === 'Z' ? inf.efectivo_contado : contadoActual();
+    const dif = contado === null || contado === undefined ? null : Math.round((contado - inf.efectivo_esperado) * 100) / 100;
+    $('#informe-imprimir').innerHTML = `
+      <h1>Olea</h1>
+      <h2>${inf.tipo === 'Z' ? `CIERRE Z nº ${inf.numero}` : 'INFORME X (sin cierre)'}</h2>
+      <p>${fechaHora(inf.generado)} · ${esc(inf.personal)}</p>
+      <p>Periodo: ${inf.desde ? fechaHora(inf.desde) : '—'} → ${fechaHora(inf.generado)}</p>
+      <hr>
+      ${fila('Tickets', inf.tickets)}${fila('Ticket medio', euros(inf.ticket_medio))}
+      ${fila('TOTAL VENTAS', euros(inf.total), true)}
+      <h3>Formas de pago</h3>
+      ${inf.formas_pago.map((t) => fila(`${esc(formaPago(t.tipo_pago))} (${t.tickets})`, euros(t.importe))).join('') || '<p>Sin cobros</p>'}
+      <h3>Efectivo</h3>
+      ${fila('Fondo de caja', euros(inf.fondo))}${fila('Cobros en efectivo', euros(inf.efectivo))}
+      ${fila('Esperado en cajón', euros(inf.efectivo_esperado), true)}
+      ${contado !== null && contado !== undefined ? fila('Contado', euros(contado)) + fila(dif === 0 ? 'Cuadra' : dif < 0 ? 'Falta' : 'Sobra', euros(Math.abs(dif)), true)
+        + fila(`Retirar (deja ${euros(inf.fondo)})`, euros(Math.max(0, contado - inf.fondo))) : '<p>Sin arqueo</p>'}
+      <h3>Camareros</h3>
+      ${inf.camareros.map((c) => fila(`${esc(c.camarero)} (${c.tickets})`, euros(c.total))).join('') || '<p>—</p>'}
+      <h3>Productos (${inf.unidades} uds.)</h3>
+      ${inf.productos.map((p) => fila(`${p.unidades} × ${esc(p.producto)}`, euros(p.importe))).join('') || '<p>—</p>'}
+      <h3>Anulaciones</h3>
+      ${inf.anulados.length ? inf.anulados.map((a) => fila(`${esc(a.mesa)} · ${esc(a.camarero.split(' ')[0])}`, euros(a.total))).join('') : '<p>Ninguna</p>'}
+      <hr>
+      ${inf.tipo === 'Z' ? '<p>Caja cerrada. El siguiente periodo empieza a 0.</p><p class="inf-firma">Firma:</p>' : '<p>Informe de comprobación: la caja sigue abierta.</p>'}`;
+    document.body.classList.add('imprimiendo-informe');
+    window.print();
+    document.body.classList.remove('imprimiendo-informe');
   }
 
   async function actualizarVentas() {
@@ -718,16 +952,232 @@
   }
 
   /* ==================================================================
+     Reservas desde la web (admin, gerente y jefes de sala)
+     ================================================================== */
+  const puedeVerReservas = () => ['admin', 'gerente', 'jefe de sala'].includes(E.usuario?.rango);
+  let filtroReservas = 'pendiente';
+  let reservas = [];
+
+  const fechaReserva = (iso) => {
+    const d = new Date(`${iso}T12:00`);
+    const hoy = new Date(); hoy.setHours(12, 0, 0, 0);
+    const dias = Math.round((d - hoy) / 86400000);
+    const texto = d.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+    return dias === 0 ? `Hoy · ${texto}` : dias === 1 ? `Mañana · ${texto}` : texto.charAt(0).toUpperCase() + texto.slice(1);
+  };
+  const haceCuanto = (fecha) => {
+    const min = minutosDesde(fecha);
+    if (min < 60) return `hace ${min} min`;
+    if (min < 1440) return `hace ${Math.floor(min / 60)} h`;
+    return `hace ${Math.floor(min / 1440)} d`;
+  };
+
+  async function actualizarGloboReservas() {
+    if (!puedeVerReservas()) return;
+    try {
+      const { pendientes } = await api.get('reservas/pendientes');
+      $('#globo-reservas').textContent = pendientes;
+      $('#globo-reservas').classList.toggle('oculto', !pendientes);
+    } catch { /* silencioso */ }
+  }
+
+  async function cargarReservas() {
+    if (filtroReservas === 'lista') { cargarListaNegra(); return; }
+    // Las confirmadas incluyen las de ayer, para poder marcar a quien no se presentó
+    const ayer = new Date(Date.now() - 86400000);
+    const desde = `${ayer.getFullYear()}-${String(ayer.getMonth() + 1).padStart(2, '0')}-${String(ayer.getDate()).padStart(2, '0')}`;
+    const filtro = filtroReservas === 'todas' ? '' : filtroReservas === 'confirmada' ? `?estado=confirmada&desde=${desde}` : `?estado=${filtroReservas}`;
+    const lista = await intentar(() => api.get(`reservas${filtro}`));
+    if (!lista) return;
+    reservas = lista;
+    actualizarGloboReservas();
+
+    const dias = new Map();
+    for (const r of lista) {
+      if (!dias.has(r.fecha)) dias.set(r.fecha, []);
+      dias.get(r.fecha).push(r);
+    }
+    const vacio = { pendiente: 'No hay solicitudes por confirmar', confirmada: 'No hay reservas confirmadas', todas: 'No hay reservas desde hoy' }[filtroReservas];
+
+    $('#lista-reservas').innerHTML = [...dias.entries()].map(([fecha, rs]) => {
+      const personas = rs.filter((r) => !['rechazada', 'cancelada', 'no_presentado'].includes(r.estado)).reduce((s, r) => s + r.comensales, 0);
+      return `
+        <section class="dia-reservas">
+          <h3>${esc(fechaReserva(fecha))} <small>${rs.length} ${rs.length === 1 ? 'reserva' : 'reservas'} · ${personas} personas</small></h3>
+          ${rs.map(tarjetaReserva).join('')}
+        </section>`;
+    }).join('') || `<p class="vacio-tpv">${vacio}</p>`;
+  }
+
+  function tarjetaReserva(r) {
+    const tel = r.telefono.replace(/[^\d+]/g, '');
+    const yaPaso = new Date(`${r.fecha}T${r.hora}`) <= new Date();
+    const acciones = {
+      pendiente: `<button class="btn btn--peligro" data-res="rechazada">Rechazar</button>
+                  <button class="btn btn--acento" data-res="confirmada">Confirmar</button>`,
+      confirmada: yaPaso
+        ? '<button class="btn btn--peligro" data-res="no_presentado">No se presentó</button>'
+        : '<button class="btn btn--peligro" data-res="cancelada">Cancelar</button>',
+    }[r.estado] || '';
+    const gestion = r.anulada_por_cliente
+      ? `Cancelada por el cliente desde el correo ${haceCuanto(r.gestionada)}`
+      : r.gestionada_por
+        ? `${{ confirmada: 'Confirmada', rechazada: 'Rechazada', cancelada: 'Cancelada', no_presentado: 'Marcada «no se presentó»' }[r.estado]} por ${esc(r.gestionada_por.split(' ')[0])} ${haceCuanto(r.gestionada)}`
+        : `Solicitada ${haceCuanto(r.creada)} desde la web`;
+    return `
+      <article class="reserva reserva--${r.estado}" data-id="${r.id}">
+        <div class="reserva__hora num">${esc(r.hora)}</div>
+        <div class="reserva__datos">
+          <div class="reserva__titulo">
+            <strong>${esc(r.nombre)}</strong>
+            <span class="chip-r num">${r.comensales} ${r.comensales === 1 ? 'persona' : 'personas'}</span>
+            ${r.zona ? `<span class="chip-r chip-r--zona">${esc(r.zona)}</span>` : ''}
+            ${r.mesa ? `<span class="chip-r chip-r--mesa">${esc(r.mesa)}</span>` : ''}
+            <span class="etiqueta-reserva etiqueta-reserva--${r.estado}">${esc(r.estado === 'no_presentado' ? 'no se presentó' : r.estado)}</span>
+          </div>
+          <div class="reserva__contacto">
+            <a href="tel:${esc(tel)}">☎ ${esc(r.telefono)}</a>
+            <a href="mailto:${esc(r.email)}">✉ ${esc(r.email)}</a>
+          </div>
+          ${r.comentarios ? `<p class="reserva__comentario">«${esc(r.comentarios)}»</p>` : ''}
+          <small class="reserva__meta">${gestion} · nº ${r.id}</small>
+        </div>
+        <div class="reserva__acciones">${acciones}</div>
+      </article>`;
+  }
+
+  async function accionReserva(id, estado) {
+    const r = reservas.find((x) => x.id === id);
+    if (!r) return;
+    let datos = { estado };
+
+    if (estado === 'confirmada') {
+      const [mesas, ocupadas] = await Promise.all([
+        E.mesas.length ? E.mesas : intentar(() => api.get('mesas')),
+        intentar(() => api.get(`reservas/mesas-ocupadas?fecha=${r.fecha}&hora=${r.hora}`)),
+      ]);
+      if (!mesas || !ocupadas) return;
+      E.mesas = mesas;
+      // Mesas que ya tienen reserva confirmada en este turno: no se pueden volver a reservar
+      const reservada = new Map(ocupadas.filter((o) => o.id !== r.id).map((o) => [o.id_mesa, o]));
+      // Primero las libres de la zona pedida con sitio suficiente
+      const encaja = (m) => m.comensales >= r.comensales;
+      const orden = [...mesas].sort((a, b) =>
+        reservada.has(a.id) - reservada.has(b.id) || (b.salon === r.zona) - (a.salon === r.zona)
+        || encaja(b) - encaja(a) || a.comensales - b.comensales || a.id - b.id);
+      $('#reserva-resumen').textContent =
+        `${r.nombre} · ${r.comensales} personas · ${fechaReserva(r.fecha).toLowerCase()} a las ${r.hora}${r.zona ? ` · prefiere ${r.zona}` : ''}. ` +
+        '¿Has hablado con el cliente para comprobarla?';
+      $('#reserva-mesa').innerHTML = '<option value="">Sin asignar todavía</option>' + orden.map((m) => {
+        const o = reservada.get(m.id);
+        return o
+          ? `<option value="${m.id}" disabled>${esc(m.nombre)} · reservada ${esc(o.hora)} (${esc(o.nombre.split(' ')[0])})</option>`
+          : `<option value="${m.id}">${esc(m.nombre)} · ${m.comensales} plazas${encaja(m) ? '' : ' (pequeña)'}</option>`;
+      }).join('');
+      const dlg = $('#dlg-reserva');
+      dlg.returnValue = '';
+      dlg.showModal();
+      const ok = await new Promise((res) => dlg.addEventListener('close', () => res(dlg.returnValue === 'si'), { once: true }));
+      if (!ok) return;
+      if ($('#reserva-mesa').value) datos.id_mesa = Number($('#reserva-mesa').value);
+    } else {
+      const textos = {
+        rechazada: [`¿Rechazar la solicitud de ${r.nombre}?`,
+          `Se enviará un correo a ${r.email} indicando que no ha sido posible realizar la reserva por aforo completo.`, 'Rechazar'],
+        cancelada: [`¿Cancelar la reserva de ${r.nombre}?`, 'La mesa quedará libre para ese horario.', 'Cancelar reserva'],
+        no_presentado: [`¿${r.nombre} no se ha presentado?`,
+          'Pasará a la lista negra: no podrá reservar por la web y recibirá un SMS pidiéndole que llame al restaurante.', 'Marcar no presentado'],
+      }[estado];
+      if (!(await confirmar(...textos))) return;
+    }
+
+    const res = await intentar(() => api.patch(`reservas/${id}`, datos));
+    if (!res) return;
+    if (estado === 'no_presentado') {
+      avisar(textoSms(res.lista_negra?.sms_estado, r.telefono), res.lista_negra?.sms_estado === 'error' ? 'error' : 'ok');
+    } else {
+      avisar({ confirmada: 'Reserva confirmada', rechazada: 'Solicitud rechazada y cliente avisado', cancelada: 'Reserva cancelada' }[estado]);
+    }
+    cargarReservas();
+  }
+
+  /* --- Lista negra ----------------------------------------------------- */
+  const MOTIVOS = { no_presentado: 'No se presentó', anulacion_tardia: 'Anuló a última hora' };
+  const textoSms = (estado, tel) => ({
+    enviado: 'Añadido a la lista negra · SMS enviado',
+    sin_configurar: `Añadido a la lista negra · SMS no configurado: llama al ${tel}`,
+    error: `Añadido a la lista negra · el SMS falló: llama al ${tel}`,
+  }[estado] || 'Añadido a la lista negra');
+
+  async function cargarListaNegra() {
+    const lista = await intentar(() => api.get('lista-negra'));
+    if (!lista) return;
+    const sms = (e) => ({
+      enviado: `<span class="chip-r chip-r--mesa">SMS enviado ${haceCuanto(e.sms_fecha)}</span>`,
+      sin_configurar: '<span class="chip-r chip-r--aviso">SMS pendiente: llamar</span>',
+      error: '<span class="chip-r chip-r--error">SMS fallido: llamar</span>',
+      pendiente: '<span class="chip-r chip-r--aviso">SMS pendiente</span>',
+    }[e.sms_estado]);
+    $('#lista-reservas').innerHTML = lista.length ? `
+      <section class="dia-reservas">
+        <h3>Lista negra <small>${lista.length} ${lista.length === 1 ? 'cliente' : 'clientes'} · no pueden reservar por la web</small></h3>
+        ${lista.map((e) => `
+          <article class="reserva reserva--negra" data-ln="${e.id}">
+            <div class="reserva__hora">⛔</div>
+            <div class="reserva__datos">
+              <div class="reserva__titulo">
+                <strong>${esc(e.nombre)}</strong>
+                <span class="chip-r chip-r--error">${MOTIVOS[e.motivo]}</span>
+                ${sms(e)}
+              </div>
+              <div class="reserva__contacto">
+                ${e.telefono ? `<a href="tel:${esc(e.telefono.replace(/[^\d+]/g, ''))}">☎ ${esc(e.telefono)}</a>` : ''}
+                ${e.email ? `<a href="mailto:${esc(e.email)}">✉ ${esc(e.email)}</a>` : ''}
+              </div>
+              <small class="reserva__meta">
+                ${e.reserva_fecha ? `Reserva del ${esc(new Date(`${e.reserva_fecha}T12:00`).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' }))} a las ${esc(e.reserva_hora)} · ` : ''}
+                Añadido ${haceCuanto(e.creada)}${e.marcado_por ? ` por ${esc(e.marcado_por.split(' ')[0])}` : ' automáticamente'}
+              </small>
+            </div>
+            <div class="reserva__acciones">
+              ${e.sms_estado !== 'enviado' ? '<button class="btn btn--fantasma" data-ln-acc="sms">Reintentar SMS</button>' : ''}
+              <button class="btn btn--fantasma" data-ln-acc="quitar">Quitar de la lista</button>
+            </div>
+          </article>`).join('')}
+      </section>` : '<p class="vacio-tpv">La lista negra está vacía</p>';
+  }
+
+  async function accionListaNegra(id, acc) {
+    const nombre = $(`[data-ln="${id}"] strong`)?.textContent || 'el cliente';
+    if (acc === 'quitar') {
+      if (!(await confirmar(`¿Quitar a ${nombre} de la lista negra?`, 'Podrá volver a reservar por la web.', 'Quitar de la lista'))) return;
+      if ((await intentar(() => api.borrar(`lista-negra/${id}`))) === undefined) return;
+      avisar(`${nombre} ya puede reservar por la web`);
+    } else if (acc === 'sms') {
+      const r = await intentar(() => api.post(`lista-negra/${id}/sms`));
+      if (!r) return;
+      avisar({ enviado: 'SMS enviado', sin_configurar: 'No hay proveedor de SMS configurado: llama al cliente', error: 'El SMS ha fallado: llama al cliente' }[r.sms_estado],
+        r.sms_estado === 'enviado' ? 'ok' : 'error');
+    }
+    cargarListaNegra();
+  }
+
+  /* ==================================================================
      Refresco periódico
      ================================================================== */
   let temporizador;
   function refrescoGeneral() {
     clearInterval(temporizador);
     actualizarVentas();
+    actualizarGloboReservas();
+    listosVistos = null;   // el primer repaso no avisa de lo que ya estaba listo
+    revisarListos();
     if (E.vista !== 'cocina') intentar(pedirCocina).then((l) => l && actualizarGlobo(l));
     temporizador = setInterval(async () => {
       if (!E.usuario || document.hidden) return;
       if (E.vista === 'sala') cargarMesas();
+      if (E.vista === 'reservas') cargarReservas(); else actualizarGloboReservas();
+      revisarListos();
       if (E.vista === 'cocina') cargarCocina();
       else intentar(pedirCocina).then((l) => l && actualizarGlobo(l));
       if (E.vista === 'pedido' && E.pedido?.id) {
@@ -846,6 +1296,8 @@
     if (b && !b.disabled) anadirPlato(Number(b.dataset.id), b);
   });
   $('#lineas').addEventListener('click', (e) => {
+    const m = e.target.closest('[data-marchar]');
+    if (m) { marcharPase(Number(m.dataset.marchar)); return; }
     const li = e.target.closest('.linea');
     if (!li) return;
     const id = Number(li.dataset.id);
@@ -888,12 +1340,48 @@
     });
   }
 
-  $('#ver-bebidas').addEventListener('change', cargarCocina);
+  $('#ver-espera').addEventListener('change', cargarCocina);
   $('#cocina').addEventListener('click', (e) => {
     const b = e.target.closest('.item-cocina');
     if (b && !b.disabled) avanzarCocina(b);
   });
-  $('#caja-fecha').addEventListener('change', cargarCaja);
+  $('#btn-informe-x').addEventListener('click', async () => { await cargarCaja(); if (informeX) imprimirInforme(informeX); });
+  $('#btn-cierre-z').addEventListener('click', cierreZ);
+  // Total escrito a mano: se olvida el desglose por monedas
+  $('#arqueo-contado').addEventListener('input', () => {
+    conteo = {};
+    $$('#arqueo-monedas input').forEach((i) => { i.value = ''; });
+    actualizarArqueo();
+  });
+  // Recuento por billetes y monedas
+  $('#arqueo-monedas').addEventListener('input', (e) => {
+    const inp = e.target.closest('input[data-valor]');
+    if (!inp) return;
+    conteo[inp.dataset.valor] = Math.max(0, parseInt(inp.value, 10) || 0);
+    const total = Object.entries(conteo).reduce((s, [v, n]) => s + Number(v) * n, 0);
+    $('#arqueo-contado').value = total ? total.toFixed(2) : '';
+    actualizarArqueo();
+  });
+  $('#tabla-cierres').addEventListener('click', async (e) => {
+    const b = e.target.closest('[data-cierre]');
+    if (!b) return;
+    const z = await intentar(() => api.get(`caja/cierres/${b.dataset.cierre}`));
+    if (z) imprimirInforme(z);
+  });
+
+  $('#filtro-reservas').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-filtro]');
+    if (!b) return;
+    filtroReservas = b.dataset.filtro;
+    $$('#filtro-reservas button').forEach((x) => x.setAttribute('aria-selected', String(x === b)));
+    cargarReservas();
+  });
+  $('#lista-reservas').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-res]');
+    if (b) accionReserva(Number(b.closest('.reserva').dataset.id), b.dataset.res);
+    const l = e.target.closest('[data-ln-acc]');
+    if (l) accionListaNegra(Number(l.closest('[data-ln]').dataset.ln), l.dataset.lnAcc);
+  });
 
   /* ==================================================================
      Arranque

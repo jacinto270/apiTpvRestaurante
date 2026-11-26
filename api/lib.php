@@ -72,7 +72,8 @@ function consulta(string $sql, array $params = []): PDOStatement
 
 /** Columnas DECIMAL que MySQL devuelve como texto y queremos como número. */
 const CAMPOS_DECIMALES = ['precio', 'total', 'cantidad', 'subtotal', 'coste', 'margen',
-    'pedido_total', 'ventas', 'ticket_medio', 'importe'];
+    'pedido_total', 'ventas', 'ticket_medio', 'importe', 'efectivo', 'tarjeta', 'otros', 'fondo',
+    'efectivo_esperado', 'efectivo_contado', 'descuadre', 'anulados_importe'];
 /** Recuentos (SUM/COUNT) que también llegan como texto. */
 const CAMPOS_ENTEROS = ['unidades', 'unidades_vendidas', 'pedidos', 'mesas'];
 

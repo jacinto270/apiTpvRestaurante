@@ -14,6 +14,11 @@ require __DIR__ . '/recursos/catalogo.php';
 require __DIR__ . '/recursos/personal.php';
 require __DIR__ . '/recursos/pedidos.php';
 require __DIR__ . '/recursos/informes.php';
+require __DIR__ . '/recursos/caja.php';
+require __DIR__ . '/recursos/correo.php';
+require __DIR__ . '/recursos/sms.php';
+require __DIR__ . '/recursos/lista_negra.php';
+require __DIR__ . '/recursos/reservas.php';
 
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
@@ -37,8 +42,11 @@ try {
         'personal'      => ruta_personal($metodo, $id),
         'pedidos'       => ruta_pedidos($metodo, $id, $sub),
         'lineas'        => ruta_lineas($metodo, $id),
-        'cocina'        => ruta_cocina($metodo),
+        'cocina'        => ruta_cocina($metodo, $id),
         'resumen'       => ruta_resumen($metodo),
+        'caja'          => ruta_caja($metodo, $id, $sub),
+        'reservas'      => ruta_reservas($metodo, $id),
+        'lista-negra'   => ruta_lista_negra($metodo, $id, $sub),
         default         => fallo(404, "El recurso «{$recurso}» no existe"),
     };
 } catch (ApiError $e) {

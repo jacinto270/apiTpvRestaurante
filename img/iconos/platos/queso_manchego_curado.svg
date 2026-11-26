@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+<rect width="200" height="200" fill="#fbe9df"/>
+<circle cx="64" cy="54" r="70" fill="#fff" opacity=".35"/>
+<ellipse cx="100" cy="100" rx="74" ry="56" fill="#ffffff" stroke="#0b2e47" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+  <ellipse cx="100" cy="100" rx="60" ry="43" fill="none" stroke="#d6e6ef" stroke-width="3"/><g transform="translate(68 92) rotate(-20) scale(1)">
+        <path d="M-14 16 L0 -18 L14 16 Z" fill="#f6d987" stroke="#0b2e47" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="round"/>
+        <path d="M-14 16 L14 16 L11 10 L-11 10 Z" fill="#a8742f"/>
+        <path d="M-10 6 L10 6 M-6 -2 L6 -2" stroke="#e5be62" stroke-width="2"/></g><g transform="translate(94 86) rotate(-6) scale(1)">
+        <path d="M-14 16 L0 -18 L14 16 Z" fill="#f6d987" stroke="#0b2e47" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="round"/>
+        <path d="M-14 16 L14 16 L11 10 L-11 10 Z" fill="#a8742f"/>
+        <path d="M-10 6 L10 6 M-6 -2 L6 -2" stroke="#e5be62" stroke-width="2"/></g><g transform="translate(120 84) rotate(8) scale(1)">
+        <path d="M-14 16 L0 -18 L14 16 Z" fill="#f6d987" stroke="#0b2e47" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="round"/>
+        <path d="M-14 16 L14 16 L11 10 L-11 10 Z" fill="#a8742f"/>
+        <path d="M-10 6 L10 6 M-6 -2 L6 -2" stroke="#e5be62" stroke-width="2"/></g><g transform="translate(146 90) rotate(22) scale(1)">
+        <path d="M-14 16 L0 -18 L14 16 Z" fill="#f6d987" stroke="#0b2e47" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="round"/>
+        <path d="M-14 16 L14 16 L11 10 L-11 10 Z" fill="#a8742f"/>
+        <path d="M-10 6 L10 6 M-6 -2 L6 -2" stroke="#e5be62" stroke-width="2"/></g><g transform="translate(82 120) rotate(170) scale(1)">
+        <path d="M-14 16 L0 -18 L14 16 Z" fill="#f6d987" stroke="#0b2e47" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="round"/>
+        <path d="M-14 16 L14 16 L11 10 L-11 10 Z" fill="#a8742f"/>
+        <path d="M-10 6 L10 6 M-6 -2 L6 -2" stroke="#e5be62" stroke-width="2"/></g><g transform="translate(116 120) rotate(188) scale(1)">
+        <path d="M-14 16 L0 -18 L14 16 Z" fill="#f6d987" stroke="#0b2e47" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="round"/>
+        <path d="M-14 16 L14 16 L11 10 L-11 10 Z" fill="#a8742f"/>
+        <path d="M-10 6 L10 6 M-6 -2 L6 -2" stroke="#e5be62" stroke-width="2"/></g>
+</svg>

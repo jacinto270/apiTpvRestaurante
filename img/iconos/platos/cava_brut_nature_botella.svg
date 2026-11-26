@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+<rect width="200" height="200" fill="#f6e6ec"/>
+<circle cx="64" cy="54" r="70" fill="#fff" opacity=".35"/>
+<path d="M91 30 L109 30 L110 60 C 126 72, 128 86, 128 100 L128 166 C 128 170, 124 172, 120 172 L80 172 C 76 172, 72 170, 72 166 L72 100 C 72 86, 74 72, 90 60Z" fill="#2f4a2a" stroke="#0b2e47" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="M89 26 L111 26 L112 66 L88 66Z" fill="#e0a54a" stroke="#0b2e47" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+    <rect x="72" y="112" width="56" height="38" rx="4" fill="#fffaf0" stroke="#0b2e47" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+    <text x="100" y="135" text-anchor="middle" dominant-baseline="middle" font-family="Georgia, serif" font-size="14.0" font-weight="700" fill="#0b2e47">CAVA</text>
+    <path d="M80 100 L80 160" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity=".45"/><circle cx="146" cy="54" r="2.5" fill="none" stroke="#e0a54a" stroke-width="1.8"/><circle cx="154" cy="70" r="2" fill="none" stroke="#e0a54a" stroke-width="1.8"/><circle cx="140" cy="76" r="1.6" fill="none" stroke="#e0a54a" stroke-width="1.8"/>
+</svg>

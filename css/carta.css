@@ -210,6 +210,7 @@
   padding: 26px 0;
   border-block: 1px solid var(--linea);
   overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
   mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
 }
 .banda__pista {
@@ -252,6 +253,7 @@
   flex: 1;
   overflow-x: auto;
   scrollbar-width: none;
+  -webkit-mask-image: linear-gradient(90deg, #000 92%, transparent);
   mask-image: linear-gradient(90deg, #000 92%, transparent);
 }
 .capitulos::-webkit-scrollbar { display: none; }
@@ -413,6 +415,7 @@
   opacity: .28;
   pointer-events: none;
   z-index: -1;
+  -webkit-mask-image: radial-gradient(circle, #000 55%, transparent 71%);
   mask-image: radial-gradient(circle, #000 55%, transparent 71%);
   transform: rotate(calc(var(--giro, 0deg) * -.6));
 }
@@ -538,7 +541,7 @@
   box-shadow: 0 40px 120px -30px var(--sombra-mar);
 }
 .ficha[open] { animation: ficha-entra 520ms cubic-bezier(.2,.7,.2,1); }
-.ficha::backdrop { background: rgba(4, 38, 61, .45); backdrop-filter: blur(6px); }
+.ficha::backdrop { background: rgba(4, 38, 61, .45); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
 @keyframes ficha-entra { from { opacity: 0; transform: translateY(30px) scale(.97); } }
 .ficha__cuerpo {
   position: relative;
@@ -650,4 +653,215 @@
 @media (prefers-reduced-motion: reduce) {
   .plato { opacity: 1; transform: none; }
   .letra { opacity: 1; transform: none; filter: none; }
+}
+
+/* =====================================================================
+   Reservas
+   ===================================================================== */
+.cabecera__nav a.cabecera__reservar {
+  padding: 9px 18px;
+  border-radius: 999px;
+  background: var(--marfil);
+  color: #fff;
+}
+.cabecera__nav a.cabecera__reservar::after { display: none; }
+.cabecera__nav a.cabecera__reservar:hover { background: #0b3a5a; color: #fff; }
+
+.portada__acciones { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; margin-top: 44px; }
+.portada__acciones .boton-oro { margin-top: 0; }
+.boton-oro--lleno { background: var(--marfil); color: #fff; }
+.boton-oro--lleno::before { background: #fff; }
+.boton-oro--lleno:hover { color: var(--marfil); }
+
+.reservar {
+  position: relative;
+  padding: 120px 0;
+  border-top: 1px solid var(--linea);
+  background:
+    radial-gradient(50% 70% at 0% 100%, rgba(255,255,255,.35), transparent 70%),
+    radial-gradient(40% 60% at 100% 0%, rgba(255,246,196,.45), transparent 70%);
+}
+.reservar__rejilla { display: grid; grid-template-columns: .85fr 1.15fr; gap: 72px; align-items: start; }
+.reservar__intro h2 { margin: 14px 0 26px; font-size: clamp(52px, 7vw, 88px); font-weight: 300; line-height: .98; }
+.reservar__intro h2 em { color: #0a5d9c; }
+.reservar__intro > p:not(.versalitas) { font-size: 17px; line-height: 1.75; color: var(--marfil-2); max-width: 46ch; }
+.reservar__notas { margin: 28px 0 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+.reservar__notas li { position: relative; padding-left: 24px; font-size: 14.5px; color: var(--marfil-2); }
+.reservar__notas li::before { content: "✦"; position: absolute; left: 0; color: #fff; font-size: 12px; line-height: 1.9; }
+
+.formulario, .reserva-ok {
+  display: grid;
+  gap: 18px;
+  padding: 36px;
+  border-radius: 28px;
+  background: rgba(255,255,255,.92);
+  box-shadow: 0 30px 80px -30px var(--sombra-mar), 0 0 0 1px rgba(255,255,255,.6);
+}
+.formulario__fila { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+.campo-r { display: grid; gap: 7px; margin: 0; padding: 0; border: 0; min-width: 0; }
+.campo-r > span, .campo-r > legend {
+  padding: 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--marfil-2);
+}
+.campo-r small { text-transform: none; letter-spacing: 0; font-weight: 500; color: var(--marfil-3); }
+.campo-r input, .campo-r select, .campo-r textarea {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 16px;
+  border: 1.5px solid var(--linea-2);
+  border-radius: 14px;
+  background: #fff;
+  color: var(--marfil);
+  font-size: 15.5px;
+  transition: border-color var(--transicion), box-shadow var(--transicion);
+}
+.campo-r textarea { resize: vertical; min-height: 90px; }
+.campo-r input:focus, .campo-r select:focus, .campo-r textarea:focus {
+  outline: none;
+  border-color: #0b6fb8;
+  box-shadow: 0 0 0 4px rgba(42,170,232,.25);
+}
+.campo-r [aria-invalid="true"] { border-color: #d4473a; box-shadow: 0 0 0 4px rgba(212,71,58,.12); }
+
+.comensales__control { display: inline-flex; align-items: center; gap: 6px; }
+.comensales__btn {
+  width: 48px; height: 48px;
+  border: 1.5px solid var(--linea-2);
+  border-radius: 50%;
+  background: #fff;
+  color: var(--marfil);
+  font-size: 22px;
+  cursor: pointer;
+  transition: border-color var(--transicion), background var(--transicion);
+}
+.comensales__btn:hover { border-color: var(--marfil); background: #eef8fe; }
+.comensales__btn:disabled { opacity: .35; cursor: not-allowed; }
+.comensales__num { min-width: 64px; text-align: center; font-family: var(--serif); font-size: 34px; font-weight: 600; }
+
+.zonas { display: flex; flex-wrap: wrap; gap: 8px; }
+.zonas label { position: relative; }
+.zonas input { position: absolute; opacity: 0; }
+.zonas span {
+  display: inline-block;
+  padding: 10px 18px;
+  border: 1.5px solid var(--linea-2);
+  border-radius: 999px;
+  background: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transicion);
+}
+.zonas input:checked + span { background: var(--marfil); border-color: var(--marfil); color: #fff; }
+.zonas input:focus-visible + span { box-shadow: 0 0 0 4px rgba(42,170,232,.35); }
+
+/* Campo trampa: fuera de la vista pero presente en el formulario */
+.trampa { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+
+.verificacion {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 16px;
+  background: #eef8fe;
+}
+.verificacion strong { font-family: var(--serif); font-size: 18px; letter-spacing: 0; text-transform: none; color: var(--marfil); }
+.verificacion__otra {
+  height: 48px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: #0b6fb8;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+}
+.verificacion__otra:hover { background: rgba(11,111,184,.08); }
+
+.casilla { display: flex; gap: 12px; align-items: flex-start; font-size: 14px; line-height: 1.5; color: var(--marfil-2); cursor: pointer; }
+.casilla input { width: 20px; height: 20px; margin-top: 1px; flex: none; accent-color: var(--marfil); }
+
+.formulario__error { min-height: 0; color: #c23b2f; font-weight: 600; font-size: 14px; }
+.formulario__error:empty { display: none; }
+.formulario__enviar { justify-self: stretch; justify-content: center; margin-top: 0; animation: none; padding: 18px 30px; font-size: 13px; }
+.formulario__enviar[disabled] { opacity: .6; cursor: wait; }
+
+.reserva-ok { justify-items: center; text-align: center; padding: 56px 36px; animation: subir 500ms ease both; }
+.reserva-ok:focus { outline: none; }
+.reserva-ok__sello {
+  display: grid; place-items: center;
+  width: 84px; height: 84px;
+  border-radius: 50%;
+  background: var(--noche);
+  color: #fff;
+  font-size: 40px;
+  box-shadow: 0 0 0 10px rgba(42,170,232,.18);
+}
+.reserva-ok h3 { font-size: 40px; font-weight: 400; font-style: italic; }
+.reserva-ok p:not(.versalitas) { max-width: 44ch; color: var(--marfil-2); line-height: 1.7; }
+.reserva-ok .boton-oro { margin-top: 8px; animation: none; }
+
+@media (max-width: 980px) {
+  .reservar__rejilla { grid-template-columns: 1fr; gap: 40px; }
+}
+@media (max-width: 720px) {
+  .cabecera__nav a:not(.cabecera__reservar) { display: none; }
+  .formulario, .reserva-ok { padding: 24px 18px; border-radius: 22px; }
+  .formulario__fila { grid-template-columns: 1fr; }
+  .verificacion { grid-template-columns: 1fr; }
+}
+
+/* Código de verificación del correo */
+.codigo { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 12px; width: min(380px, 100%); text-align: left; }
+.codigo input { font-family: var(--serif); font-size: 26px; font-weight: 700; letter-spacing: .3em; text-align: center; }
+.codigo .boton-oro { margin-top: 0; animation: none; min-height: 52px; }
+.codigo .formulario__error { grid-column: 1 / -1; text-align: center; }
+
+/* Anulación de reserva por el cliente */
+.anular { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+.anular .boton-oro { margin-top: 0; animation: none; }
+.boton-oro--peligro { background: #c23b2f; border-color: #c23b2f; color: #fff; }
+.boton-oro--peligro::before { background: #fff; }
+.boton-oro--peligro:hover { color: #c23b2f; border-color: #c23b2f; }
+
+/* Aforo */
+.aviso-aforo {
+  margin: -4px 0 0;
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: #fff6dc;
+  border: 1.5px solid #e6c25c;
+  color: #6b4d00;
+  font-size: 14px;
+  font-weight: 600;
+}
+.aviso-aforo--lleno { background: #fde8e6; border-color: #e29a92; color: #9b2a20; }
+.aviso-aforo--lleno::before { content: '⛔ '; }
+.dias-completos { margin: -8px 0 0; font-size: 12.5px; color: var(--marfil-3); }
+.campo-r select option:disabled { color: #9aa7b0; }
+.formulario__enviar:disabled { opacity: .45; cursor: not-allowed; }
+
+/* Iconos de bebidas (vista lateral): no giran */
+.capitulo--lista .plato__disco { transform: none; }
+.capitulo--lista .plato:hover .plato__disco img { transform: scale(1.24); }
+.ficha__plato--quieto { animation: none; }
+
+/* El plato decorativo de cada capítulo sobresale a la derecha: se recorta en el borde
+   de la pantalla. «clip» (y no «hidden») mantiene la barra de secciones pegajosa. */
+.carta { overflow-x: clip; }
+.palabra { display: inline-block; white-space: nowrap; }
+/* Móvil: el nombre del plato ocupa la línea y el precio va debajo, sin puntos guía */
+@media (max-width: 720px) {
+  .plato__fila { flex-wrap: wrap; row-gap: 2px; }
+  .plato__nombre { flex-basis: 100%; }
+  .plato__puntos { display: none; }
+  .plato__precio { font-size: 21px; }
 }

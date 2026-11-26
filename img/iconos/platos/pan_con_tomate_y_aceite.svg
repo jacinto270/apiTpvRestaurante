@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+<rect width="200" height="200" fill="#fdf0e1"/>
+<circle cx="64" cy="54" r="70" fill="#fff" opacity=".35"/>
+<g transform="translate(96 100) rotate(-14) scale(1)"><rect x="-66" y="-46" width="132" height="92" rx="16" fill="#c9925b" stroke="#0b2e47" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+  <rect x="58" y="-10" width="22" height="20" rx="8" fill="#c9925b" stroke="#0b2e47" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+  <circle cx="72" cy="0" r="3.5" fill="#0b2e47"/>
+  <path d="M-52 -24 h80 M-48 0 h60 M-52 24 h86" stroke="#9b6a3c" stroke-width="2.5" stroke-linecap="round" opacity=".45"/></g><g transform="translate(82 96) rotate(-14) scale(1)"><rect x="-30" y="-22" width="60" height="44" rx="12" fill="#b5763a" stroke="#0b2e47" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+         <rect x="-24" y="-16" width="48" height="32" rx="8" fill="#e8b973"/>
+         <path d="M-20 -8 C -10 -16, 6 -4, 18 -12 C 22 0, 10 8, 20 12 C 4 16, -10 6, -20 12 Z" fill="#e2483b" opacity=".85"/>
+         <circle cx="-8" cy="2" r="3" fill="#f2b632" opacity=".9"/><circle cx="10" cy="-4" r="2.4" fill="#f2b632" opacity=".9"/></g><g transform="translate(128 114) rotate(8) scale(1)"><rect x="-24" y="-18" width="48" height="36" rx="10" fill="#b5763a" stroke="#0b2e47" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+         <rect x="-19" y="-13" width="38" height="26" rx="7" fill="#e8b973"/>
+         <path d="M-15 -6 C -4 -12, 8 0, 15 -8 C 16 4, 6 8, 14 10 C 0 12, -8 4, -15 9Z" fill="#e2483b" opacity=".85"/></g><circle cx="126" cy="70" r="12" fill="#e2483b" stroke="#0b2e47" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+  <circle cx="126" cy="70" r="7.4399999999999995" fill="#f07a5a"/>
+  <ellipse cx="130.56" cy="70" rx="1.92" ry="1.2000000000000002" fill="#fbd3b4" transform="rotate(0 130.56 70)"/><ellipse cx="123.72" cy="73.94907584125704" rx="1.92" ry="1.2000000000000002" fill="#fbd3b4" transform="rotate(120 123.72 73.94907584125704)"/><ellipse cx="123.72" cy="66.05092415874296" rx="1.92" ry="1.2000000000000002" fill="#fbd3b4" transform="rotate(240 123.72 66.05092415874296)"/>
+</svg>

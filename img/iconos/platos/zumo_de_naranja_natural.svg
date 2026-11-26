@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+<rect width="200" height="200" fill="#e3f4fc"/>
+<circle cx="64" cy="54" r="70" fill="#fff" opacity=".35"/>
+<path d="M68.9 80.4 L131.1 80.4 L124.5 160 L75.5 160Z" fill="#f7a531"/><path d="M68 66 L132 66 L126 162 L74 162Z" fill="#ffffff" fill-opacity=".18" stroke="#0b2e47" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/><path d="M76 74 L81 150" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity=".7"/><g transform="translate(128 70)"><circle cx="0" cy="0" r="13" fill="#f39a2b" stroke="#0b2e47" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+  <circle cx="0" cy="0" r="10" fill="#fff6b8"/>
+  <path d="M9 0 L-9 0" stroke="#f39a2b" stroke-width="2"/><path d="M4.500000000000001 7.794228634059947 L-4.500000000000001 -7.794228634059947" stroke="#f39a2b" stroke-width="2"/><path d="M-4.499999999999998 7.794228634059948 L4.499999999999998 -7.794228634059948" stroke="#f39a2b" stroke-width="2"/></g><g transform="translate(150 150)"><path d="M-16 0 A 16 16 0 0 1 16 0 Z" fill="#f39a2b" stroke="#0b2e47" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M-12 -1 A 12 12 0 0 1 12 -1 Z" fill="#ffc66b"/></g>
+</svg>
